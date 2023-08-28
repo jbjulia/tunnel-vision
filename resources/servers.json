@@ -1,0 +1,22 @@
+{
+  "Bangalore (blr1)": {
+    "public_ip": "68.183.82.166",
+    "private_ip": "10.122.0.2"
+  },
+  "Frankfurt (fra1)": {
+    "public_ip": "167.71.63.238",
+    "private_ip": "10.114.0.2"
+  },
+  "London (lon1)": {
+    "public_ip": "206.189.125.119",
+    "private_ip": "10.106.0.2"
+  },
+  "New York (nyc1)": {
+    "public_ip": "159.89.230.100",
+    "private_ip": "10.116.0.2"
+  },
+  "San Francisco (sfo3)": {
+    "public_ip": "161.35.231.42",
+    "private_ip": "10.124.0.2"
+  }
+}
