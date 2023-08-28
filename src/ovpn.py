@@ -102,11 +102,13 @@ class OpenVPN:
         self.client_private_ip = f.validate_ip(
             client_private_ip_input if client_private_ip_input else f.get_private_ip()
         )
-        """
-
         self.interface_name = input(
             f"{c.BLUE}Enter the name of the interface (e.g. tun0):{c.END} "
         )
+        """
+
+        self.interface_name = "tun0"  # TODO: Add option to select interface
+
         self.port_number = f.validate_port(
             f"{c.BLUE}Enter the port number (default 1194, unprivileged range 1024-49151):{c.END} "
         )
