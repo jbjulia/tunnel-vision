@@ -1,83 +1,80 @@
-# Guardians of the Gateway - Tunnel Vision
+<p align="center">
+    <img alt="Tunnel vision logo" src="./docs/images/logo-galaxy.png"/>
+</p>
 
-## Introduction
+# Tunnel Vision
 
-This project facilitates the configuration, setup, and management of OpenVPN tunnels. It provides a streamlined
-interface to clone repositories, generate certificates, and configure servers and clients for secure communication. The
-project is intended to be run on a Linux-based system and requires superuser privileges.
+## Overview
 
-## Table of Contents
+Tunnel Vision enables the configuration, setup, and management of OpenVPN
+tunnels.
 
-1. [Dependencies](#dependencies)
-2. [Installation](#installation)
-3. [Directions for Use](#directions-for-use)
-4. [Structure and Components](#structure-and-components)
-5. [Server Information](#server-information)
-6. [Contributing](#contributing)
-7. [License](#license)
+Tunnel Vision provides a streamlined interface to OpenVPN's [easy-rsa CA
+utility](https://github.com/OpenVPN/easy-rsa), certificate generation, server
+and client configuration, for secure communication.
 
-## Dependencies
+Tunnel Vision is built and run on a Linux-based system and requires superuser
+privileges.
 
-- **Python 3**: The project is written in Python 3.
-- **OpenVPN**: Required for creating and managing VPN tunnels.
-- **Git**: Required for cloning the easy-rsa repository.
+## Build requirements
+
+* `Python 3` - The project uses Python 3 for its source code.
+* `OpenVPN` -  Creates and manages VPN tunnels.
+* `Git` - Clone the `easy-rsa` repository from GitHub.
+* `Linux`
+
+Learn more about project structure and getting started on the [Get
+Started](./docs/get-started.md) page.
 
 ## Installation
 
-1. **Clone the Repository**: Clone the project repository to your local machine.
-2. **Set Up Environment**: Ensure that Python 3, OpenVPN, and Git are installed.
-3. **Grant Permissions**: Run the script with superuser privileges using `sudo`.
+Tunnel Vision is a python project built on Linux follow these steps to set up
+the project on your machine:
 
-## Directions for Use
+1. **Install project requirements** including `Python 3`, `OpenVPN`, and `Git`
+   make sure they are installed on your Linux machine.
+2. **Fork** the repository using the secure shell (SSH) link:
+   `git@github.com:jbjulia/tunnel-vision.git`
+3. From your fork, **clone the repository** to your local machine.
+4. In your terminal, **select the directory** you saved the project in.
+5. Make the `tv.py` script executable by running the following command `chmod
+   +x tv.py`.
+6. Execute the script with **superuser** privileges using `sudo ./tv.py`.
 
-### Installation
+## Configure a tunnel
 
-1. **Clone the Repository**: Clone the project repository to your local machine.
-2. **Navigate to the Directory**: Navigate to the project directory in your terminal.
-3. **Install Dependencies**: Ensure that Python 3, OpenVPN, and Git are installed on your system.
-4. **Grant Permissions**: Make the `tv.py` script executable by running `chmod +x tv.py`.
-5. **Run as Superuser**: Execute the script with superuser privileges using `sudo ./tv.py`.
+1. Launch the application.
+2. Run the script `tv.py`.
+3. Select **Create Tunnel**.
+4. Enter **Tunnel Information** such as a name and Internet Protocol (IP)
+   address for the tunnel.
+5. Review the configuration and confirm the settings to proceed.
 
-### Setting Up an OpenVPN Tunnel
+### Manage existing tunnels
 
-1. **Launch the Application**: Run the `tv.py` script.
-2. **Select "Create Tunnel"**: Follow the prompts and choose the option to create a new tunnel.
-3. **Enter Tunnel Information**: Provide a name for the tunnel and select the connection type, IP addresses, interface
-   name, and port number as prompted.
-4. **Confirm Settings**: Review the configuration and confirm to proceed.
+1. Launch the Application.
+2. Run the `tv.py` script.
+3. Select **Manage Tunnels**.
+4. **Modify or Delete Tunnels**.
 
-### Managing Existing Tunnels
+### Connect to a server
 
-1. **Launch the Application**: Run the `tv.py` script.
-2. **Select "Manage Tunnels"**: Choose the option to manage existing tunnels.
-3. **Modify or Delete Tunnels**: Follow the prompts to modify or delete existing tunnels as needed.
+1. Select **Connect to Server**.
+2. From the list of servers in the `servers.json`, **choose a server you want
+   use**.
+3. **Enter Credentials** to establish connection.
 
-### Connecting to Servers
+Read more detailed setup and configuration information on the [Tunnel
+configuration](./docs/tunnel-config.md) page.
 
-1. **Select "Connect to Server"**: From the main menu, choose the option to connect to a server.
-2. **Choose a Server**: Select a server from the `servers.json` file.
-3. **Enter Credentials**: If required, enter the necessary credentials to establish the connection.
+## Styling and contributing
 
-## Structure and Components
+> **Note:** Do not clone directly on the Tunnel Vision master branch. You
+> **MUST** create your own fork then clone that fork.
 
-- `functions.py`: Contains utility functions for checking OS, privileges, and more.
-- `keys.py`: Manages the cloning of the easy-rsa repository and key generation.
-- `ovpn.py`: Contains the `OpenVPN` class for configuring and managing tunnels.
-- `tv.py`: Main entry point for the application.
-- `constants.py`: Holds constants like paths and ANSI color codes.
-- `servers.json`: JSON file mapping server locations to public and private IPs.
-
-## Server Information
-
-- The server information is stored in `servers.json`.
-- Contains public and private IP addresses for various locations.
-
-## Contributing
-
-- Fork the repository.
-- Create a branch for the specific part you're working on.
-- Make your changes and create a pull request.
+Read additional information about styling and the conventions in the `docs`
+module in the [README](./docs/README.md) file.
 
 ## License
 
-Please refer to the project's license file.
+Tunnel Vision is open source software licensed under the [MIT License](LICENSE).
