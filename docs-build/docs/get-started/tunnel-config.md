@@ -1,15 +1,21 @@
+---
+sidebar_position: 2
+---
+
 # Tunnel configuration
+
+<!--This documentation is worded for a GUI, not console based application.-->
 
 This topic covers Tunnel configuration with the Tunnel Vision project. It
 assumes that you have installed the project as described on the [Get
-started](./get-started.md) page.
+started](./installation.html) page.
 
 If you have not yet read the `Get started` page, go there now.
 
 Now that you have Tunnel Vision up and running, it is time to configure your
 first tunnel.
 
-## Setting Up a tunnel
+## Setting up a tunnel
 
 The following steps guide you through setting up a tunnel.
 

@@ -72,8 +72,8 @@ configuration](./docs/tunnel-config.md) page.
 > **Note:** Do not clone directly on the Tunnel Vision master branch. You
 > **MUST** create your own fork then clone that fork.
 
-Read additional information about styling and the conventions in the `docs`
-module in the [README](./docs/README.md) file.
+Read additional information about styling and the conventions in the `docs-build`
+module `README` file.
 
 ## License
 
