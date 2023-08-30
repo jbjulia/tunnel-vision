@@ -90,6 +90,8 @@ def display_menu():
         print("Invalid choice. Please try again.")
 
 
+#TODO: I don't think we should be installing dependencies for the user, especially without prompting first.
+# our user guide should cover a clean setup/install and will also not limit us to running on debian derivatives
 def check_dependencies(package_name):
     """
     This function checks for the package and installs if necessary.
@@ -125,7 +127,7 @@ def check_dependencies(package_name):
         )
         return False
 
-
+#TODO: replace subprocessing filesystem calls with either os.mkdir or the Path library (Python >=3.5)
 def make_directory(dir_name, chown=False, chmod=False, sticky_bit=False):
     """
     Creates a directory with specified characteristics and applies optional permissions changes.

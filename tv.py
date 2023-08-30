@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+#TODO: Change to only import needed sys members, broad import is unsafe, especially when using root perms
 import sys
 
 from src import functions as f

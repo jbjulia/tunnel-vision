@@ -1,7 +1,9 @@
+#TODO: Ensure os/sys only import what they need.
 import os
 import shutil
 import sys
 
+#TODO: Rename c and f to something that makes sense and describes what they provide
 from resources import constants as c
 from src import keys, functions as f
 
