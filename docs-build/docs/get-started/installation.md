@@ -1,33 +1,24 @@
-# Get started
+---
+sidebar_position: 1
+---
+
+# Installation
 
 This topic covers the basic architecture of Tunnel Vision and installing the
 project. It assumes you are familiar with OpenVPN,Python, Git, and GitHub. After
 reading this topic, you should have an understanding of how to begin using
 Tunnel Vision.
 
-### Requirements
+## Requirements
 
 The project requires that you have the following installed:
 
 * `Python 3` - The project uses Python 3 for its source code.
 * `OpenVPN` -  Creates and manages VPN tunnels.
 * `Git` - Clone the `easy-rsa` repository from GitHub.
-* `Linux`
+* `Linux` - Debian-based Linux flavors, such as Ubuntu.
 
-### Project architecture
-
-This outlines the project `src` or source files and a basic synopsis.
-
-* `functions.py`: Contains utility functions for checking OS, privileges, and
-  more.
-* `keys.py`: Manages the cloning of the `easy-rsa `repository and key
-  generation.
-* `ovpn.py`: Contains the `OpenVPN` class for configuring and managing tunnels.
-* `tv.py`: Main entry point for the application.
-* `constants.py`: Contains constants like paths and ANSI color codes.
-* `servers.json`: JSON file mapping server locations to public and private IPs.
-
-## Installation
+## Install
 
 Once you have a [Linux operating system
 (OS)](https://www.linux.org/pages/download/) running and installed the
@@ -44,7 +35,7 @@ started with Tunnel Vision.
 4. Make the `tv.py` script executable by running the following command `chmod +x tv.py`.
 5. Execute the script with **superuser** privileges using `sudo ./tv.py`.
 
-Read more about [Tunnel configuration and setup]().
+Read more about [Tunnel configuration and setup](tunnel-config.html).
 
 ## See more:
 

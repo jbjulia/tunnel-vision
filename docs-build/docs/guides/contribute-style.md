@@ -1,12 +1,15 @@
-# Tunnel Vision Documentation <!-- omit in toc -->
+---
+sidebar_position: 2
+---
 
-The `docs` module contains the documentation for Tunnel Vision.
+# Contributing to Tunnel Vision
 
-* [Writing and contributing](#writing-and-contributing)
-* [Viewing documentation](#viewing-documentation)
-* [Workflow](#workflow)
-  * [Pull request template](#pull-request-template)
+# Overview
 
+This page contains the guidelines of  the documentation and code for Tunnel
+Vision.
+
+The intended audience: **Everyone!**
 
 ## Writing and contributing
 
@@ -28,13 +31,9 @@ guide that enable easy decision making about proposed document changes.
 
 ## Viewing documentation
 
-Tunnel Vision's documentation is written in VSCode using the
-[Markdown Preview Github
-Styling](https://marketplace.visualstudio.com/items?itemName=bierner.markdown-preview-github-styles)
-extension.
+Tunnel Vision's documentation is written in Markdown.
 
-Currently, there is no other method for building and viewing the docs (for
-example, sphinx or jekyll).
+You can build the docs locally, [learn how](./how-to-build.html)!
 
 ## Workflow
 
@@ -50,7 +49,7 @@ contribution:
 4. Create a working branch in **your** fork. The branch should begin with your
    initials. For example:
 
-```
+```bash
 git checkout -b jg/working-branch-name
 ```
 
@@ -63,11 +62,13 @@ git checkout -b jg/working-branch-name
    described in the [GitHub
    documentation](https://docs.github.com/en/get-started).
 
-### Pull request template
+> **Note:** Do not edit the files in the `build` folder only the markdown files.
+
+## Pull request template
 
 The following is a template to use when creating a Pull Request on GitHub:
 
-```
+```markdown
 <!-- Tag someone from the team as a reviewer (Request reviewer) -->
 <!-- This helps us find and prioritize your request more quickly -->
 
