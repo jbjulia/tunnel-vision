@@ -30,21 +30,26 @@ class OpenVPN:
         port_number (int): Port number for the connection (default is 1194, valid range 1024-49151).
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        tunnel_name=None,
+        connection_type=None,
+        server_public_ip=None,
+        server_private_ip=None,
+        client_private_ip=None,
+        interface_name=None,
+        port_number=None,
+    ):
         super(OpenVPN, self).__init__()
 
-        self.tunnel_name = None
-        self.connection_type = None
-        self.server_public_ip = None
-        self.server_private_ip = None
-        self.client_private_ip = None
-        self.interface_name = None
-        self.port_number = None
+        self.tunnel_name = tunnel_name
+        self.connection_type = connection_type
+        self.server_public_ip = server_public_ip
+        self.server_private_ip = server_private_ip
+        self.client_private_ip = client_private_ip
+        self.interface_name = interface_name
+        self.port_number = port_number
 
-        f.clear_console()
-        f.check_dependencies("openvpn")
-
-        self.get_arguments()
         self.generate_certificates()
         self.generate_server_config()
         self.generate_client_config()
@@ -55,62 +60,6 @@ class OpenVPN:
 
         print(
             f"\n{c.GREEN}SUCCESS! Your configuration files can be found in tests/{self.tunnel_name}{c.END}\n\n"
-        )
-
-    def get_arguments(self):
-        """
-        Gets the necessary arguments for configuring an OpenVPN connection.
-
-        Asks the user to provide the following information:
-        - Connection type (either 'p2p' or 'subnet')
-        - The name of the tunnel
-        - Public and private IP addresses for both the server and client
-        - The name of the interface
-        - Port number, with a default of 1194 and a valid range of 1024-49151
-
-        The IP addresses are validated to ensure they are in a proper format, and
-        the port number is validated to ensure it is within the valid range.
-        """
-        self.connection_type = input(
-            f"{c.BLUE}Enter the type of connection (e.g. 'p2p' or 'subnet'):{c.END} "
-        )
-
-        if self.connection_type not in ["p2p", "subnet"]:
-            print(f"{c.YELLOW}Invalid connection type. Defaulting to 'p2p'.{c.END}")
-            self.connection_type = "p2p"
-
-        self.tunnel_name = input(f"{c.BLUE}Enter the name of the tunnel:{c.END} ")
-
-        selected_server = f.get_servers()
-
-        self.server_public_ip = selected_server["public_ip"]
-        self.server_private_ip = selected_server["private_ip"]
-
-        self.client_private_ip = f.get_private_ip()
-
-        self.client_private_ip = f.validate_ip(
-            f"{c.BLUE}Enter the private IP address of the client (or leave empty to use your private IP):{c.END} "
-        )
-
-        """
-        self.server_public_ip = f.validate_ip(
-            "Enter the public IP address of the server (e.g. 192.168.1.1): "
-        )
-        self.server_private_ip = f.validate_ip(
-            "Enter the private IP address of the server (e.g. 10.2.0.1): "
-        )
-        self.client_private_ip = f.validate_ip(
-            client_private_ip_input if client_private_ip_input else f.get_private_ip()
-        )
-        self.interface_name = input(
-            f"{c.BLUE}Enter the name of the interface (e.g. tun0):{c.END} "
-        )
-        """
-
-        self.interface_name = "tun0"  # TODO: Add option to select interface
-
-        self.port_number = f.validate_port(
-            f"{c.BLUE}Enter the port number (default 1194, unprivileged range 1024-49151):{c.END} "
         )
 
     def generate_certificates(self):

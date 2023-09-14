@@ -1,24 +1,19 @@
 import os
 import subprocess
 
+import pexpect
+
 from resources import constants as c
 
 
 def clone_easy_rsa(tunnel_name):
     """
-    Creates a directory and clones the easy-rsa repository into it.
+    Clone the easy-rsa repository from GitHub.
 
-    :param tunnel_name: Name of the tunnel.
-    :return: True on success, False on failure.
-
-    The method performs the following actions:
-    - Clones the easy-rsa repository from GitHub into a directory named according to the tunnel.
-    - Ensures that Git is available and the internet connection is active.
-
-    Note: The method relies on Git command-line tool execution.
+    :param tunnel_name: Name of the tunnel
+    :return: True if successful, False otherwise
     """
-    print(f"Cloning the easy-rsa repository...")
-
+    print("Cloning the easy-rsa repository...")
     target_dir = f"{c.TESTS}{tunnel_name}/easy-rsa"
 
     try:
@@ -29,7 +24,7 @@ def clone_easy_rsa(tunnel_name):
         print("Repository cloned successfully.")
     except subprocess.CalledProcessError:
         print(
-            "Failed to clone the repository. Check if git is installed or if you have an internet connection."
+            "Failed to clone the repository. Ensure git is installed and you have internet access."
         )
         return False
 
@@ -38,22 +33,11 @@ def clone_easy_rsa(tunnel_name):
 
 def init_pki(tunnel_name):
     """
-    Initializes the Public Key Infrastructure (PKI) for the specified tunnel name.
+    Initialize the PKI (Public Key Infrastructure).
 
-    :param tunnel_name: Name of the tunnel.
-    :return: True on success, False on failure.
-
-    The method performs the following actions:
-    - Changes the working directory to the easy-rsa directory.
-    - Initializes the PKI by running the appropriate easy-rsa scripts.
-    - Builds the certificate authority without a password.
-
-    Exceptions handled:
-    - OSError: In case of failure to change the working directory.
-    - CalledProcessError: In case of failure in running the easy-rsa scripts.
+    :param tunnel_name: Name of the tunnel
+    :return: True if successful, False otherwise
     """
-    print(f"Initializing PKI...")
-
     target_dir = f"{c.TESTS}{tunnel_name}/easy-rsa/easyrsa3"
 
     try:
@@ -63,10 +47,12 @@ def init_pki(tunnel_name):
         return False
 
     try:
-        # Build the certificate authority
         subprocess.run(["./easyrsa", "init-pki"], check=True)
-        subprocess.run(["./easyrsa", "build-ca", "nopass"], check=True)
-    except subprocess.CalledProcessError as e:
+        child = pexpect.spawn("./easyrsa build-ca nopass")
+        child.expect("Common Name .*:")
+        child.sendline(f"{tunnel_name}")
+        child.expect(pexpect.EOF)
+    except Exception as e:
         print(f"Failed to initialize PKI. Error: {e}")
         return False
 
@@ -75,24 +61,11 @@ def init_pki(tunnel_name):
 
 def generate_certificates(tunnel_name):
     """
-    Generates server and client certificates for the specified tunnel name.
+    Generate server and client certificates.
 
-    :param tunnel_name: Name of the tunnel.
-    :return: True on success, False on failure.
-
-    The method performs the following actions:
-    - Changes the working directory to the easy-rsa directory.
-    - Generates server and client certificates using the easy-rsa scripts without a password.
-
-    Optional:
-    - Uncomment the section to generate the Diffie-Hellman key exchange if needed.
-
-    Exceptions handled:
-    - OSError: In case of failure to change the working directory.
-    - CalledProcessError: In case of failure in running the easy-rsa scripts.
+    :param tunnel_name: Name of the tunnel
+    :return: True if successful, False otherwise
     """
-    print(f"Generating certificates for server and client...")
-
     target_dir = f"{c.TESTS}{tunnel_name}/easy-rsa/easyrsa3"
 
     try:
@@ -102,48 +75,34 @@ def generate_certificates(tunnel_name):
         return False
 
     try:
-        subprocess.run(
-            ["./easyrsa", "build-server-full", tunnel_name + "-server", "nopass"],
-            check=True,
+        server_child = pexpect.spawn(
+            f"./easyrsa build-server-full {tunnel_name}-server nopass"
         )
-        subprocess.run(
-            ["./easyrsa", "build-client-full", tunnel_name + "-client", "nopass"],
-            check=True,
+        server_child.expect(r"Confirm request details[:]?")
+        server_child.sendline("yes")
+        server_child.expect(pexpect.EOF)
+
+        client_child = pexpect.spawn(
+            f"./easyrsa build-client-full {tunnel_name}-client nopass"
         )
-    except subprocess.CalledProcessError as e:
+        client_child.expect(r"Confirm request details[:]?")
+        client_child.sendline("yes")
+        client_child.expect(pexpect.EOF)
+    except Exception as e:
         print(f"Failed to generate certificates. Error: {e}")
         return False
-
-    # Uncomment below if you want to generate the Diffie-Hellman key exchange
-    """
-    try:
-        subprocess.run(["./easyrsa", "gen-dh"], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to generate Diffie-Hellman key exchange. Error: {e}")
-        return False
-    """
 
     return True
 
 
 def generate_ta_key(tunnel_name):
     """
-    Generates the ta.key (TLS Authentication Key) for the specified tunnel name.
+    Generate the ta.key (TLS Authentication Key).
 
-    :param tunnel_name: Name of the tunnel.
-    :return: True on success, False on failure.
-
-    The method performs the following actions:
-    - Changes the working directory to the easy-rsa directory.
-    - Executes the OpenVPN command to generate the ta.key, which is used for
-      additional security in TLS encryption.
-
-    Exceptions handled:
-    - OSError: In case of failure to change the working directory.
-    - CalledProcessError: In case of failure to run the OpenVPN command.
+    :param tunnel_name: Name of the tunnel
+    :return: True if successful, False otherwise
     """
-    print(f"Generating ta.key for TLS encryption...")
-
+    print("Generating ta.key for TLS encryption...")
     target_dir = f"{c.TESTS}{tunnel_name}/easy-rsa/easyrsa3"
 
     try:
@@ -153,7 +112,6 @@ def generate_ta_key(tunnel_name):
         return False
 
     try:
-        # Generate ta.key for TLS encryption
         subprocess.run(["openvpn", "--genkey", "secret", "ta.key"], check=True)
         print("Key generated successfully.")
     except subprocess.CalledProcessError as e:

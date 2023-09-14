@@ -7,7 +7,6 @@ import subprocess
 import sys
 
 from resources import constants as c
-from src.ovpn import OpenVPN
 
 
 def check_os():
@@ -17,10 +16,10 @@ def check_os():
     :return: True if the OS is Linux, False otherwise.
     """
     if sys.platform != "linux":
-        print(
-            "This script must be run on a Linux-based system (e.g., Ubuntu, Pop!_OS, etc.)."
+        return (
+            False,
+            "This script must be run on a Linux-based system (e.g., Ubuntu, Pop!_OS, etc.).",
         )
-        return False
     return True
 
 
@@ -31,63 +30,8 @@ def check_privileges():
     :return: True if the script is run with superuser privileges, False otherwise.
     """
     if os.geteuid() != 0:
-        print("This script requires elevated privileges. Please run with sudo.")
-        return False
+        return False, "This script requires elevated privileges. Please run with sudo."
     return True
-
-
-def clear_console():
-    """
-    This function clears the console.
-    """
-    os.system("clear")
-
-
-def display_menu():
-    """
-    Displays the main menu for the Guardians of the Gateway - Tunnel Vision application and handles user input.
-
-    This function performs the following actions:
-    - Clears the console for fresh display.
-    - Defines the menu items for building, copying, connecting, and disconnecting VPN tunnels, and quitting the program.
-    - Prints the menu items to the console in a formatted manner.
-    - Prompts the user to select an option by entering a corresponding number.
-    - Calls the appropriate function based on the user's choice, or prints an error message for an invalid selection.
-    """
-    clear_console()
-
-    menu = {
-        "1": "Build OpenVPN tunnel",
-        "2": "Copy files to server",
-        "3": "Connect VPN",
-        "4": "Disconnect VPN",
-        "5": "Delete a tunnel",
-        "6": "Quit",
-    }
-
-    print("========================================")
-    print("Guardians of the Gateway - Tunnel Vision")
-    print("========================================\n")
-
-    for key, value in menu.items():
-        print(f"{key}: {value}")
-
-    choice = input("\nPlease select an option: ")
-
-    if choice == "1":
-        OpenVPN()
-    elif choice == "2":
-        copy_to_server()
-    elif choice == "3":
-        connect_vpn()
-    elif choice == "4":
-        disconnect_vpn()
-    elif choice == "5":
-        delete_tunnel()
-    elif choice == "6":
-        quit_program()
-    else:
-        print("Invalid choice. Please try again.")
 
 
 def check_dependencies(package_name):
@@ -144,7 +88,7 @@ def make_directory(dir_name, chown=False, chmod=False, sticky_bit=False):
     """
     try:
         subprocess.run(
-            f"mkdir -p {c.TESTS}{dir_name} && chown {os.getlogin()}:{os.getlogin()} {c.TESTS}{dir_name} -R",
+            f"mkdir -p {c.TESTS}{dir_name}",
             shell=True,
             check=True,
         )
@@ -251,7 +195,7 @@ def get_private_ip():
     return private_ip
 
 
-def get_servers():
+def get_servers(display=True, server=None):
     """
     Retrieves and displays the list of available servers from the servers.json file,
     then prompts the user to select a server by its number.
@@ -266,19 +210,21 @@ def get_servers():
     """
     # Read server information from servers.json
     servers = load_json(c.SERVERS)
-
-    # Display available servers
     server_list = list(servers.keys())
-    print(f"\n{c.BOLD + c.UNDERLINE}Available servers:{c.END}\n")
-    for idx, server in enumerate(server_list, start=1):
-        print(f"  {c.BOLD}{idx}.  {c.GREEN}{server}{c.END}")
 
-    # Get user's server choice
-    choice = (
-        int(input(f"\n{c.BLUE}Select a server by entering its number:{c.END} ")) - 1
-    )
+    if display:
+        # Display available servers
+        print(f"\n{c.BOLD + c.UNDERLINE}Available servers:{c.END}\n")
+        for idx, server in enumerate(server_list, start=1):
+            print(f"  {c.BOLD}{idx}.  {c.GREEN}{server}{c.END}")
 
-    return servers[server_list[choice]]
+        # Get user's server choice
+        choice = (
+            int(input(f"\n{c.BLUE}Select a server by entering its number:{c.END} ")) - 1
+        )
+        return servers[server_list[choice]]
+    else:
+        return servers[server_list[server]]
 
 
 def load_json(json_file):
@@ -392,7 +338,7 @@ def copy_to_server():
         print(f"An error occurred while copying the files. {e}")
 
 
-def connect_vpn():
+def connect_vpn(tunnel_name, server_ip):
     """
     Establishes an OpenVPN connection by first starting the server-side tunnel, then the client-side tunnel.
 
@@ -405,17 +351,6 @@ def connect_vpn():
     - Copies the client-side configuration file to /etc/openvpn/ and starts the client-side tunnel.
     - Prints status messages to inform the user of the progress of the connection process.
     """
-    # Retrieve available servers
-    server_ip = get_servers()["public_ip"]
-
-    # Read tunnels.json to find the corresponding tunnel name
-    tunnels = load_json(c.TUNNELS)
-
-    tunnel_name = next(
-        tunnel_name
-        for tunnel_name, tunnel_data in tunnels.items()
-        if tunnel_data["server_public_ip"] == server_ip
-    )
 
     # Connect to the selected server and start the OpenVPN tunnel
     print(f"Connecting to server {server_ip}...")
