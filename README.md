@@ -1,8 +1,6 @@
 <p align="center">
-    <img alt="Tunnel vision logo" src="./docs/images/logo-galaxy.png"/>
+    <img alt="Tunnel vision logo" src="./resources/ui/logos/tunnel-vision-logo.png"/>
 </p>
-
-# Tunnel Vision
 
 ## Overview
 
