@@ -7,8 +7,8 @@
 Tunnel Vision enables the configuration, setup, and management of OpenVPN
 tunnels.
 
-Tunnel Vision provides a streamlined interface to OpenVPN's [easy-rsa CA
-utility](https://github.com/OpenVPN/easy-rsa), certificate generation, server
+Tunnel Vision provides a streamlined interface to the [easy-rsa CA
+utility](https://github.com/OpenVPN/easy-rsa), certificate generation, OpenVPN server
 and client configuration, for secure communication.
 
 Tunnel Vision is built and run on a Linux-based system and requires superuser
