@@ -14,7 +14,7 @@ Tunnel Vision.
 The project requires that you have the following installed:
 
 * `Python 3` - The project uses Python 3 for its source code.
-* `OpenVPN` -  Creates and manages VPN tunnels.
+* `OpenVPN` - Creates and manages VPN tunnels.
 * `Git` - Clone the `easy-rsa` repository from GitHub.
 * `Linux` - Debian-based Linux flavors, such as Ubuntu.
 

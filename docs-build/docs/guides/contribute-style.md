@@ -6,7 +6,7 @@ sidebar_position: 2
 
 # Overview
 
-This page contains the guidelines of  the documentation and code for Tunnel
+This page contains the guidelines of the documentation and code for Tunnel
 Vision.
 
 The intended audience: **Everyone!**

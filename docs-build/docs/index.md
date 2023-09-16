@@ -15,7 +15,7 @@ Campus.
 ### What you need
 
 * `Python 3` - The project uses Python 3 for its source code.
-* `OpenVPN` -  Creates and manages VPN tunnels.
+* `OpenVPN` - Creates and manages VPN tunnels.
 * `Git` - Clone the `easy-rsa` repository from GitHub.
 * `Linux` - Debian-based Linux flavors, such as Ubuntu.
 * `Node.js` version 16.14 or above. This is needed to build the docs. It is not

@@ -2,191 +2,211 @@ import getpass
 import ipaddress
 import json
 import os
+import random
+import shutil
 import socket
+import string
 import subprocess
 import sys
+
+from PyQt6.QtCore import QCoreApplication, QSize
+from PyQt6.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QComboBox,
+    QPushButton,
+    QDialogButtonBox,
+)
+from PyQt6.QtWidgets import QMessageBox
 
 from resources import constants as c
 
 
-def check_os():
-    """
-    This function checks if the OS is Linux.
+def prompt_user(icon_type, title, text, buttons=None):
+    msg = QMessageBox()
+    icon_mapping = {
+        "info": QMessageBox.Icon.Information,
+        "warning": QMessageBox.Icon.Warning,
+        "critical": QMessageBox.Icon.Critical,
+        "question": QMessageBox.Icon.Question,
+    }
+    msg.setIcon(icon_mapping.get(icon_type, QMessageBox.Icon.NoIcon))
+    msg.setWindowTitle(title)
+    msg.setText(text)
 
-    :return: True if the OS is Linux, False otherwise.
-    """
+    clicked_button = None
+    if buttons:
+        button_flags = 0
+        for button in buttons:
+            button_flags |= getattr(QMessageBox.StandardButton, button)
+        msg.setStandardButtons(button_flags)
+
+        if msg.exec():
+            for button in buttons:
+                if msg.standardButton(msg.clickedButton()) == getattr(
+                    QMessageBox.StandardButton, button
+                ):
+                    clicked_button = button
+                    break
+
+    else:
+        msg.exec()
+
+    return clicked_button
+
+
+def create_dialog(title, options_list, callback):
+    dialog = QDialog()
+    dialog.setWindowTitle(title)
+    dialog.resize(QSize(400, 200))
+
+    layout = QVBoxLayout()
+
+    combo_box = QComboBox()
+    combo_box.addItems(options_list)
+
+    btn_action = QPushButton(title)
+
+    layout.addWidget(combo_box)
+    layout.addWidget(btn_action)
+
+    dialog.setLayout(layout)
+
+    def on_button_clicked():
+        selected_option = combo_box.currentText()
+        if selected_option:
+            callback(selected_option)
+        dialog.accept()
+
+    btn_action.clicked.connect(on_button_clicked)
+    dialog.exec()
+
+
+def check_os():
     if sys.platform != "linux":
-        return (
-            False,
-            "This script must be run on a Linux-based system (e.g., Ubuntu, Pop!_OS, etc.).",
-        )
+        return False
     return True
 
 
 def check_privileges():
-    """
-    This function checks if the script is run with superuser privileges.
-
-    :return: True if the script is run with superuser privileges, False otherwise.
-    """
     if os.geteuid() != 0:
-        return False, "This script requires elevated privileges. Please run with sudo."
+        return False
     return True
 
 
-def check_dependencies(package_name):
-    """
-    This function checks for the package and installs if necessary.
+def check_dependencies():
+    dependencies = [
+        "curl",
+        "git",
+        "openvpn",
+        # "python3-pexpect",
+        # "python3-pyqt6",
+        "sshpass",
+    ]
 
-    :param package_name: The name of the package to be installed.
-    :return: True if successful, False otherwise.
-    """
-    print(f"Checking for {package_name}...")
+    missing_packages = []
 
-    # Check if the package is already installed
-    result = subprocess.run(
-        ["dpkg", "-l", package_name],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    if result.returncode == 0:
-        print(f"Package '{package_name}' is already installed.\n")
-        return True
+    for package_name in dependencies:
+        result = subprocess.run(
+            ["dpkg", "-l", package_name],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
-    print(f"Installing package '{package_name}'...")
+        if result.returncode == 0:
+            pass
+        else:
+            missing_packages.append(package_name)
 
+    return missing_packages
+
+
+def get_login():
     try:
-        subprocess.run(
-            f"apt install {package_name} -y",
-            shell=True,
-            check=True,
-        )
-        print(f"Package '{package_name}' installed successfully.\n")
-        return True
-    except subprocess.CalledProcessError:
-        print(
-            f"Failed to install package '{package_name}'. Check if you have sufficient permissions."
-        )
-        return False
+        return os.getlogin()
+    except OSError:
+        return getpass.getuser()
 
 
-def make_directory(dir_name, chown=False, chmod=False, sticky_bit=False):
-    """
-    Creates a directory with specified characteristics and applies optional permissions changes.
+def create_tunnel_name():
+    random_str = "".join(random.choices(string.ascii_letters + string.digits, k=8))
 
-    This function performs the following actions:
-    - Creates the directory, including any necessary parent directories, with the given name.
-    - If the 'chown' is True, changes ownership of the directory to the current user.
-    - If the 'chmod' is True, changes the permissions of the directory, optionally setting the sticky bit if requested.
-    - Prints success messages for each successful operation, or an error message if something goes wrong.
-
-    :param dir_name: The name of the directory to be created. Path relative to a predefined constant `c.TESTS`.
-    :param chown: Optional; Whether to change ownership to the current user. Defaults to False.
-    :param chmod: Optional; Whether to change permissions to 777. Defaults to False.
-    :param sticky_bit: Optional; Whether to set the sticky bit along with the chmod operation. Defaults to False.
-    :return: True if directory creation and any requested changes were successful, or an error message if else.
-    """
-    try:
-        subprocess.run(
-            f"mkdir -p {c.TESTS}{dir_name}",
-            shell=True,
-            check=True,
-        )
-        print(f"Directory '{dir_name}' created successfully.")
-        if chown:
-            current_user = getpass.getuser()
-            subprocess.check_call(
-                f"chown {current_user}:{current_user} {c.TESTS}* -R", shell=True
-            )
-            print(f"Ownership of '{dir_name}' changed successfully.")
-        if chmod:
-            subprocess.run(
-                f"chmod {'1' if sticky_bit else ''}777 {c.TESTS + dir_name}",
-                shell=True,
-                check=True,
-            )
-            print(f"Permissions of {dir_name} changed successfully.")
-        return True
-    except subprocess.CalledProcessError:
-        print(f"Failed to create {dir_name}. Check if you have sufficient permissions.")
+    return f"{get_login()}_{random_str}"
 
 
-def validate_ip(prompt):
-    """
-    Prompt the user for a valid IP address and return it.
-    Repeats the prompt until a valid IP address is entered.
+def curl_ip_info():
+    curl_command = ["curl", "https://ipinfo.io"]
+    result = subprocess.run(curl_command, stdout=subprocess.PIPE)
+    result_str = result.stdout.decode("utf-8")
+    result_json = json.loads(result_str)
 
-    :param prompt: The prompt message to display to the user.
-    :return: A valid IP address as a string.
-    """
+    ip = result_json.get("ip", "N/A")
+    city = result_json.get("city", "N/A")
+    region = result_json.get("region", "N/A")
+    country = result_json.get("country", "N/A")
+
+    return f"Your current IP Address is {ip} ({city}, {region}, {country})"
+
+
+def validate_ip(ip_address):
     while True:
-        ip = input(prompt)
-
-        if not ip:
+        if not ip_address:
             return get_private_ip()
 
         try:
-            return str(ipaddress.ip_address(ip))
+            return str(ipaddress.ip_address(ip_address))
         except ValueError:
-            print("Invalid IP address. Please enter a valid IP.")
+            prompt_user(
+                icon_type="warning",
+                title="Invalid IP",
+                text="Please enter a valid IP.",
+            )
 
 
-def validate_port(prompt):
-    """
-    Prompt the user for a valid port number and return it. The valid port range is 1024-49151.
-    If the user presses Enter without entering anything, the default port 1194 is returned.
-
-    :param prompt: The prompt message to display to the user.
-    :return: A valid port number.
-    """
+def validate_port(port):
     while True:
-        port = input(prompt)
-
-        # If the user presses Enter without entering anything, use the default port
-        if not port:
-            return 1194
-
         try:
-            port = int(port)
-
-            # Check if the port is in the valid unprivileged range
             if 1024 <= port <= 49151:
                 return port
             else:
-                print(
-                    "Invalid port number. Please enter a value in the unprivileged range (1024-49151)."
+                prompt_user(
+                    icon_type="warning",
+                    title="Invalid Port",
+                    text="Please enter a value in the unprivileged range (1024-49151).",
                 )
-
         except ValueError:
-            print("Invalid port number. Please enter a numerical value.")
+            prompt_user(
+                icon_type="warning",
+                title="Invalid Port",
+                text="Please enter a numerical value",
+            )
 
 
 def get_private_ip():
-    """
-    Retrieves the private IP address of the host machine.
-
-    This function performs the following actions:
-    - Creates a UDP socket and attempts to connect to an arbitrary IP address (10.255.255.255).
-    - Uses the `getsockname` method to fetch the local endpoint address, i.e., the private IP.
-    - If any exception occurs, it defaults the private IP to '127.0.0.1'.
-    - Closes the socket.
-    - Prints the private IP address.
-    """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
-        # Doesn't matter if the destination is unreachable
         s.connect(("10.255.255.255", 1))
         private_ip = s.getsockname()[0]
     except socket.gaierror:
-        print("Address-related error")
+        prompt_user(
+            title="Error",
+            text="There was an address related error.",
+            icon_type="critical",
+        )
         private_ip = "127.0.0.1"
     except socket.timeout:
-        print("Connection timed out")
+        prompt_user(
+            title="Error",
+            text="Connection timed out.",
+            icon_type="critical",
+        )
         private_ip = "127.0.0.1"
     except OSError:
-        print(
-            "OS error, possibly related to permissions or other system-related issues"
+        prompt_user(
+            title="Error",
+            text="OS error, possibly related to permissions or other system-related issues",
+            icon_type="critical",
         )
         private_ip = "127.0.0.1"
     finally:
@@ -195,49 +215,7 @@ def get_private_ip():
     return private_ip
 
 
-def get_servers(display=True, server=None):
-    """
-    Retrieves and displays the list of available servers from the servers.json file,
-    then prompts the user to select a server by its number.
-
-    This function performs the following actions:
-    - Reads the server information from the servers.json file.
-    - Enumerates the available servers and prints them to the console with coloring for enhanced visibility.
-    - Prompts the user to select a server by entering its number.
-    - Returns the details of the selected server as a dictionary.
-
-    :return servers[server_list[choice]]: A dictionary containing the private and public IP addresses of the server.
-    """
-    # Read server information from servers.json
-    servers = load_json(c.SERVERS)
-    server_list = list(servers.keys())
-
-    if display:
-        # Display available servers
-        print(f"\n{c.BOLD + c.UNDERLINE}Available servers:{c.END}\n")
-        for idx, server in enumerate(server_list, start=1):
-            print(f"  {c.BOLD}{idx}.  {c.GREEN}{server}{c.END}")
-
-        # Get user's server choice
-        choice = (
-            int(input(f"\n{c.BLUE}Select a server by entering its number:{c.END} ")) - 1
-        )
-        return servers[server_list[choice]]
-    else:
-        return servers[server_list[server]]
-
-
 def load_json(json_file):
-    """
-    Loads data from a specified JSON file.
-
-    This function reads the specified JSON file and returns the data as a dictionary.
-    It can be used to load various data structures, including tunnel configurations or other structured information.
-
-    :param json_file: The path to the JSON file to be read.
-    :return: The dictionary containing the data from the JSON file. If the file is not found or is incorrectly
-    formatted, an error may be raised.
-    """
     with open(json_file) as in_file:
         data = json.load(in_file)
 
@@ -245,250 +223,228 @@ def load_json(json_file):
 
 
 def dump_json(data, json_file):
-    """
-    Dumps the specified data to a JSON file.
-
-    This function takes a dictionary containing the data and writes it to the specified JSON file.
-    The keys of the JSON object are sorted alphabetically, and the resulting JSON is indented for better readability.
-
-    :param data: The dictionary containing the data to be dumped.
-
-    :param json_file: The path to the JSON file where the data will be written. If the file exists, it will be
-    overwritten; otherwise, a new file will be created.
-    """
     with open(json_file, "w") as out_file:
         json.dump(data, out_file, indent=4, sort_keys=True)
 
 
-def copy_to_server():
-    """
-    Copies the OpenVPN server configuration file and jail directory to the server.
+def get_servers(index):
+    servers = load_json(c.SERVERS)
+    server_list = list(servers.keys())
 
-    This function performs the following actions:
-    - Reads the servers.json file to obtain the available servers and asks the user to select one.
-    - Matches the selected server IP with the corresponding tunnel name in tunnels.json.
-    - Defines local paths for the server configuration file and jail directory.
-    - Defines temporary and final remote paths on the server.
-    - Uses `sshpass` with `scp` and specific flags to copy the server configuration file and jail directory to the
-      temporary remote path.
-    - Uses `sshpass` with `ssh` to move the server configuration file and jail directory from the temporary remote path
-      to the final remote path, removing any conflicting files or directories if they exist.
-    - Prints a success message upon completion, or an error message if something goes wrong.
+    return servers[server_list[index]]
 
-    The SSH flags used are:
-    - `-o StrictHostKeyChecking=no`: Disables strict host key checking.
 
-    The SCP flags used are:
-    - `-P 22`: Specifies the port number (for SCP the flag is uppercase).
-    - `-C`: Requests compression of all data.
-    - `-v`: Verbose mode to show debugging messages.
-
-    Note: This function requires the 'sshpass' utility to be installed on the system.
-    """
-    # Display available servers and ask user to select one
-    server_ip = get_servers()["public_ip"]
-
-    # Read tunnels.json to find the corresponding tunnel name
-    tunnels = load_json(c.TUNNELS)
-
-    tunnel_name = next(
-        tunnel_name
-        for tunnel_name, tunnel_data in tunnels.items()
-        if tunnel_data["server_public_ip"] == server_ip
-    )
-
+def copy_to_server(server_public_ip, tunnel_name):
     local_server_conf_path = f"{c.TESTS}{tunnel_name}/{tunnel_name}-server.conf"
     local_jail_path = f"{c.TESTS}{tunnel_name}/{tunnel_name}-jail"
 
-    # Temporary remote path
-    tmp_path = f"root@{server_ip}:/tmp/"
+    tmp_path = f"root@{server_public_ip}:/tmp/"
+    destination_openvpn = "/etc/openvpn/"
 
-    # Final destination path
-    destination = f"/etc/openvpn/"
-
-    # SCP flags
-    scp_flags = "-P 22 -C"  # -v
-
-    # SSH flags
+    scp_flags = "-P 22 -C"  # -vvv"
     ssh_flags = "-o StrictHostKeyChecking=no"
 
-    # Define local paths
-    local_paths = {"server.conf": local_server_conf_path, "jail": local_jail_path}
-
-    print("\nCopying files to server...")
+    local_paths = {
+        f"{tunnel_name}-server.conf": (local_server_conf_path, destination_openvpn),
+        f"{tunnel_name}-jail": (local_jail_path, destination_openvpn),
+    }
 
     try:
-        # Copy and move files
-        for item, local_path in local_paths.items():
-            # Copy file to temporary remote path
-            command = f"sshpass -p {c.PASS} scp {scp_flags} {'-r' if item == 'jail' else ''} {local_path} {tmp_path}"
+        for item, (local_path, destination) in local_paths.items():
+            command = f"sshpass -p {c.PASS} scp {scp_flags} {'-r' if 'jail' in item else ''} {local_path} {tmp_path}"
             subprocess.check_call(command, shell=True)
 
-            # Remove conflicting directory or file if it exists, then move the new one
             command = (
-                f"sshpass -p '{c.PASS}' ssh {ssh_flags} root@{server_ip} "
-                f"'rm -rf {destination}{tunnel_name}-{item} && "
-                f"mv /tmp/{tunnel_name}-{item} {destination}'"
+                f"sshpass -p '{c.PASS}' ssh {ssh_flags} root@{server_public_ip} "
+                f"'mv /tmp/{item} {destination}'"
             )
             subprocess.check_call(command, shell=True)
 
-        print("Configuration file and jail directory copied successfully.")
+        prompt_user(
+            title="Success",
+            text="Copy to server completed successfully!",
+            icon_type="info",
+        )
+
+        return True
 
     except subprocess.CalledProcessError as e:
-        print(f"An error occurred while copying the files. {e}")
+        prompt_user(
+            title="Error",
+            text=f"The following error occurred when copying files to the server:\n\n{e}",
+            icon_type="critical",
+        )
+
+        return False
 
 
-def connect_vpn(tunnel_name, server_ip):
-    """
-    Establishes an OpenVPN connection by first starting the server-side tunnel, then the client-side tunnel.
+def dialog_select_tunnel(title):
+    dialog = QDialog()
+    dialog.setWindowTitle(title)
+    dialog.resize(400, 200)
 
-    This function performs the following actions:
-    - Prints the available server IPs using 'get_servers()["public_ip"]'.
-    - Prompts the user to select the desired server for connection.
-    - Initiates an SSH connection to the selected server using sshpass, with the password defined in the script.
-    - Looks for the server-side configuration file in /etc/openvpn and starts the OpenVPN tunnel on the server
-      using 'systemctl start openvpn@{tunnel_name}'.
-    - Copies the client-side configuration file to /etc/openvpn/ and starts the client-side tunnel.
-    - Prints status messages to inform the user of the progress of the connection process.
-    """
+    layout = QVBoxLayout()
+    combo_box = QComboBox()
 
-    # Connect to the selected server and start the OpenVPN tunnel
-    print(f"Connecting to server {server_ip}...")
-    ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo systemctl start openvpn@{tunnel_name}-server'"
-    subprocess.run(ssh_cmd, shell=True)
-    print("Server-side tunnel started.")
+    tunnels = load_json(c.TUNNELS)
 
-    # Copy client-side OpenVPN configuration file to /etc/openvpn/
-    local_client_conf_path = f"{c.TESTS}{tunnel_name}/{tunnel_name}-client.conf"
-    destination_path = f"/etc/openvpn/{tunnel_name}-client.conf"
-    copy_cmd = f"sudo cp {local_client_conf_path} {destination_path}"
-    subprocess.run(copy_cmd, shell=True)
+    if not tunnels:
+        prompt_user(
+            icon_type="info",
+            title="No Tunnels",
+            text="There are no tunnels configured.",
+        )
+        return None
 
-    # Start the client-side OpenVPN tunnel
-    client_cmd = f"sudo systemctl start openvpn@{tunnel_name}-client"
-    subprocess.run(client_cmd, shell=True)
-    print("Client-side tunnel started.")
+    combo_box.addItems(list(tunnels.keys()))
+    layout.addWidget(combo_box)
 
+    button_box = QDialogButtonBox(
+        QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+    )
 
-def disconnect_vpn():
-    """
-    Disconnects any active OpenVPN tunnels and exits the program.
+    # Connect the buttons to appropriate slots
+    button_box.accepted.connect(dialog.accept)
 
-    This function performs the following actions:
-    - Utilizes the 'pgrep' command to search for any active OpenVPN processes.
-    - If active tunnels are detected, it attempts to terminate them using the 'pkill' command.
-    - If the termination is successful, a success message is printed to the console.
-    - If the termination fails (e.g., due to permissions or other issues), a failure message is printed, instructing the
-      user to manually close the tunnels via their console.
-    - If no active tunnels are found, an informational message is printed to the console.
-    """
-    # Find any active OpenVPN processes
-    active_tunnels = subprocess.run(["pgrep", "openvpn"], stdout=subprocess.PIPE)
+    button_box.rejected.connect(dialog.reject)
 
-    # If active tunnels are found, attempt to terminate them
-    if active_tunnels.stdout:
-        try:
-            subprocess.run(["pkill", "openvpn"], check=True)
-            print("Active tunnels closed.")
-        except subprocess.CalledProcessError:
-            print(
-                "Failed to close active tunnels. Please manually close them via your console."
-            )
+    layout.addWidget(button_box)
+    dialog.setLayout(layout)
+
+    result = dialog.exec()
+
+    if result == QDialog.DialogCode.Accepted:
+        return combo_box.currentText()
     else:
-        print("No active tunnels found.")
+        return None
+
+
+def connect_vpn(server_ip=None, tunnel_name=None):
+    def execute_connection(server_ip, tunnel_name):
+        try:
+            ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo systemctl start openvpn@{tunnel_name}-server'"
+            subprocess.run(ssh_cmd, shell=True, check=True)
+
+            local_client_conf_path = f"{c.TESTS}{tunnel_name}/{tunnel_name}-client.conf"
+            destination_path = f"/etc/openvpn/{tunnel_name}-client.conf"
+            copy_cmd = f"sudo cp {local_client_conf_path} {destination_path}"
+            subprocess.run(copy_cmd, shell=True, check=True)
+
+            client_cmd = f"sudo systemctl start openvpn@{tunnel_name}-client"
+            subprocess.run(client_cmd, shell=True, check=True)
+
+            prompt_user(
+                title="Success",
+                text="Successfully connected to the VPN.",
+                icon_type="info",
+            )
+            return True
+        except Exception as e:
+            prompt_user(
+                title="Error",
+                text=f"Error while connecting to VPN: {str(e)}",
+                icon_type="critical",
+            )
+            return False
+
+    if not (server_ip and tunnel_name):
+        selected_tunnel = dialog_select_tunnel("Select Tunnel to Connect")
+        if selected_tunnel:
+            tunnels = load_json(c.TUNNELS)
+            server_ip = tunnels[selected_tunnel]["server_public_ip"]
+            tunnel_name = selected_tunnel
+
+    return execute_connection(server_ip, tunnel_name)
+
+
+def disconnect_vpn(tunnel_name=None):
+    if not tunnel_name:
+        tunnel_name = dialog_select_tunnel("Select Tunnel to Disconnect")
+        if not tunnel_name:
+            return
+
+    # Load tunnel information
+    tunnels = load_json(c.TUNNELS)
+    if tunnel_name in tunnels:
+        server_ip = tunnels[tunnel_name]["server_public_ip"]
+    else:
+        prompt_user(icon_type="critical", title="Error", text="Tunnel not found.")
+        return
+
+    try:
+        # Stop client side service
+        subprocess.run(
+            [f"sudo systemctl stop openvpn@{tunnel_name}-client"],
+            shell=True,
+            check=True,
+        )
+
+        # Stop server side service via SSH
+        ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo systemctl stop openvpn@{tunnel_name}-server'"
+        subprocess.run(ssh_cmd, shell=True, check=True)
+
+        prompt_user(
+            icon_type="info", title="Success", text="Tunnel closed successfully."
+        )
+    except subprocess.CalledProcessError as e:
+        prompt_user(
+            icon_type="critical",
+            title="Error",
+            text=f"An error occurred while closing the tunnel. {e}",
+        )
 
 
 def delete_tunnel():
-    """
-    Deletes a specified tunnel.
-
-    This function performs the following actions:
-    - Reads the tunnels.json file to display available tunnels.
-    - Asks the user to type the name of the tunnel to delete.
-    - Attempts to close the specified tunnel.
-    - Removes the tunnel from the tunnels.json file.
-    - Removes the corresponding configuration and log files from the /etc/openvpn directory.
-
-    The tunnel naming convention is: tunnel_name-client.conf, and tunnel_name-client.log.
-
-    Note: Proper permissions may be required to perform some of these operations.
-    """
-    # Load the tunnels
-    tunnels = load_json(c.TUNNELS)
-
-    # Display available tunnels
-    print(f"\n{c.BOLD + c.UNDERLINE}Available tunnels:{c.END}\n")
-    for tunnel_name in tunnels:
-        print(f"  {c.GREEN}{tunnel_name}{c.END}")
-
-    # Ask the user to type the tunnel name
-    selected_tunnel = input(
-        f"\n{c.BLUE}Please type the name of the tunnel you want to delete:{c.END} "
-    )
-
-    if selected_tunnel not in tunnels:
-        print("Tunnel not found.")
+    selected_tunnel = dialog_select_tunnel("Select Tunnel to Delete")
+    if not selected_tunnel:
         return
 
-    # Attempt to close the tunnel
+    tunnels = load_json(c.TUNNELS)
+    server_ip = tunnels[selected_tunnel]["server_public_ip"]
+
     try:
-        command = f"openvpn --rmtun --dev-type tun --dev {selected_tunnel}"
-        subprocess.check_call(command, shell=True)
-        print(f"Tunnel '{selected_tunnel}' closed successfully.")
+        disconnect_vpn(selected_tunnel)
     except subprocess.CalledProcessError as e:
-        print(f"An error occurred while closing the tunnel. {e}")
-
-    # Remove from tunnels.json
-    del tunnels[selected_tunnel]
-    dump_json(tunnels, c.TUNNELS)
-
-    # Remove the corresponding configuration and log files
-    config_path = f"/etc/openvpn/{selected_tunnel}-client.conf"
-    log_path = f"/etc/openvpn/{selected_tunnel}-client.log"
+        prompt_user(
+            icon_type="critical",
+            title="Error",
+            text=f"An error occurred while closing the tunnel. {e}",
+        )
+        return
 
     try:
-        os.remove(config_path)
-        os.remove(log_path)
-        print(
-            f"Configuration and log files for '{selected_tunnel}' removed successfully."
+        ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo rm -rf /etc/openvpn/{selected_tunnel}*'"
+        subprocess.run(ssh_cmd, shell=True, check=True)
+
+        local_client_conf_path = f"/etc/openvpn/{selected_tunnel}*"
+        remove_client_conf_cmd = f"sudo rm -f {local_client_conf_path}"
+        subprocess.run(remove_client_conf_cmd, shell=True, check=True)
+
+        del tunnels[selected_tunnel]
+        dump_json(tunnels, c.TUNNELS)
+
+        tunnel_folder_path = os.path.join(c.TESTS, selected_tunnel)
+        shutil.rmtree(tunnel_folder_path)
+    except Exception as e:
+        prompt_user(
+            icon_type="critical",
+            title="Error",
+            text=f"Failed to delete the tunnel: {e}",
         )
-    except FileNotFoundError as e:
-        print(f"An error occurred while removing the files. {e}")
-
-    print(f"Tunnel '{selected_tunnel}' deleted successfully.")
 
 
-def quit_program():
-    """
-    Checks for any active OpenVPN tunnels, prompts the user for whether to disconnect them, and then exits the program.
-
-    This function performs the following actions:
-    - Utilizes the 'pgrep' command to search for any active OpenVPN processes.
-    - If active tunnels are detected, prompts the user with an option to disconnect them.
-    - If the user chooses to disconnect, calls the `disconnect_vpn` function to handle the disconnection process.
-    - If the user chooses not to disconnect, active tunnels are left open.
-    - If no active tunnels are found, prints an informational message to the console.
-    - Exits the program with a farewell message.
-    """
-    # Check for active OpenVPN tunnels
+def quit_application():
     active_tunnels = subprocess.run(["pgrep", "openvpn"], stdout=subprocess.PIPE)
 
-    # If active tunnels are found, prompt the user to close them
     if active_tunnels.stdout:
-        user_response = (
-            input(
-                "Active OpenVPN tunnels found. Would you like to close them? (yes/no): "
-            )
-            .strip()
-            .lower()
+        user_response = prompt_user(
+            icon_type="question",
+            title="Active Tunnels",
+            text="Active OpenVPN tunnels found. Would you like to close them?",
+            buttons=("Yes", "No"),
         )
 
-        if user_response == "yes":
+        if user_response == "Yes":
             disconnect_vpn()
-        else:
-            print("Leaving active tunnels open.")
-    else:
-        print("No active tunnels found.")
 
-    print("Goodbye.")
-    sys.exit()
+    QCoreApplication.quit()

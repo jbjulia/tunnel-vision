@@ -19,7 +19,7 @@ privileges.
 ## Build requirements
 
 * `Python 3` - The project uses Python 3 for its source code.
-* `OpenVPN` -  Creates and manages VPN tunnels.
+* `OpenVPN` - Creates and manages VPN tunnels.
 * `Git` - Clone the `easy-rsa` repository from GitHub.
 * `Linux`
 

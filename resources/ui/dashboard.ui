@@ -1,516 +1,612 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
-    <class>MainWindow</class>
-    <widget class="QMainWindow" name="MainWindow">
-        <property name="windowTitle">
-            <string>Guardians of the Gateway - Tunnel Vision</string>
-        </property>
-        <property name="styleSheet">
-            <string notr="true">/* Global QWidget settings */
-                QWidget {
-                color: #DDD;
-                font: 12pt &quot;Ubuntu&quot;;
-                background-color: #282C34;
-                border: 1px solid #3C4048;
-                border-radius: 5px;
-                padding: 7px;
-                }
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>617</width>
+    <height>592</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Guardians of the Gateway - Tunnel Vision</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* Global QWidget settings */
+QWidget {
+    color: #DDD;
+    font: 12pt &quot;Ubuntu&quot;;
+    background-color: #282C34;
+    border: 1px solid #3C4048;
+    border-radius: 5px;
+    padding: 7px;
+}
 
-                /* Main Window */
-                QMainWindow {
-                border: none;
-                }
+/* Main Window */
+QMainWindow {
+    border: none;
+}
 
-                /* ToolTips */
-                QToolTip {
-                color: #FFF;
-                background-color: #3C4048;
-                border: 1px solid #8F48D5;
-                border-radius: 5px;
-                padding: 7px;
-                }
+/* QDialog */
+QDialog {
+    color: #DDD;
+    background-color: #282C34;
+    border: 1px solid #3C4048;
+    border-radius: 5px;
+    padding: 7px;
+}
 
-                /* PushButton */
-                QPushButton {
-                border: 2px solid #2C313A;
-                background-color: transparent;
-                padding: 14px 22px;
-                border-radius: 25px;
-                outline: none;
-                }
+/* QDialogButtonBox */
+QDialogButtonBox QPushButton {
+    border: 2px solid #2C313A;
+    background-color: transparent;
+    padding: 14px 22px;
+    border-radius: 25px;
+    outline: none;
+}
 
-                QPushButton:hover {
-                background-color: #3C4048;
-                border: 2px solid #8F48D5;
-                color: #FFF;
-                }
+QDialogButtonBox QPushButton:hover {
+    background-color: #3C4048;
+    border: 2px solid #8F48D5;
+    color: #FFF;
+}
 
-                QPushButton:pressed {
-                background-color: #8F48D5;
-                color: #FFF;
-                }
+QDialogButtonBox QPushButton:pressed {
+    background-color: #8F48D5;
+    color: #FFF;
+}
 
-                /* Labels */
-                QLabel {
-                color: #DDD;
-                border: none;
-                font: bold;
-                }
+/* ToolTips */
+QToolTip {
+    color: #FFF;
+    background-color: #3C4048;
+    border: 1px solid #8F48D5;
+    border-radius: 5px;
+    padding: 7px;
+}
 
-                /* RadioButton */
-                QRadioButton {
-                color: #FFF;
-                font: bold;
-                border: none;
-                }
+/* PushButton */
+QPushButton {
+    border: 2px solid #2C313A;
+    background-color: transparent;
+    padding: 14px 22px;
+    border-radius: 25px;
+    outline: none;
+}
 
-                QRadioButton::indicator {
-                width: 18px;
-                height: 18px;
-                border-radius: 9px;
-                }
+QPushButton:hover {
+    background-color: #3C4048;
+    border: 2px solid #8F48D5;
+    color: #FFF;
+}
 
-                QRadioButton::indicator:unchecked {
-                background-color: #2C313A;
-                }
+QPushButton:pressed {
+    background-color: #8F48D5;
+    color: #FFF;
+}
 
-                QRadioButton::indicator:checked {
-                background-color: #8F48D5;
-                }
+/* Labels */
+QLabel {
+    color: #DDD;
+    border: none;
+    font: bold;
+}
 
-                QRadioButton::indicator:hover {
-                background-color: #3C4048;
-                }
+/* RadioButton */
+QRadioButton {
+    color: #FFF;
+    font: bold;
+    border: none;
+}
 
-                /* QLineEdit */
-                QLineEdit {
-                background-color: #21252B;
-                border: 2px solid #2C313A;
-                color: #DDD;
-                padding: 8px;
-                border-radius: 8px;
-                }
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+}
 
-                QLineEdit:hover {
-                border: 2px solid #8F48D5;
-                }
+QRadioButton::indicator:unchecked {
+    background-color: #2C313A;
+}
 
-                /* ComboBox */
-                QComboBox {
-                background-color: #21252B;
-                border: 2px solid #2C313A;
-                border-radius: 12px;
-                padding: 8px;
-                padding-left: 10px; /* New padding for the left side */
-                }
+QRadioButton::indicator:checked {
+    background-color: #8F48D5;
+}
 
-                QComboBox:hover {
-                border: 2px solid #8F48D5;
-                }
+QRadioButton::indicator:hover {
+    background-color: #3C4048;
+}
 
-                QComboBox::drop-down {
-                subcontrol-origin: padding;
-                subcontrol-position: top right;
-                width: 25px;
-                border-left-width: 3px;
-                border-left-color: rgba(39, 44, 54, 150);
-                border-left-style: solid;
-                border-top-right-radius: 3px;
-                border-bottom-right-radius: 3px;
-                background-image: url(&quot;resources/ui/icons/arrow-down.svg&quot;); /* Your custom down arrow */
-                background-position: center;
-                background-repeat: no-repeat;
-                }
+/* QLineEdit */
+QLineEdit {
+    background-color: #21252B;
+    border: 2px solid #2C313A;
+    color: #DDD;
+    padding: 8px;
+    border-radius: 8px;
+}
 
-                QComboBox QAbstractItemView {
-                color: #DDD; /* Your existing text color */
-                background-color: #21252B; /* Your existing background color */
-                padding: 10px; /* Increased padding */
-                selection-background-color: #8F48D5; /* Your existing selection background color */
-                }
+QLineEdit:hover {
+    border: 2px solid #8F48D5;
+}
 
-            </string>
-        </property>
-        <widget class="QWidget" name="centralwidget">
-            <layout class="QHBoxLayout" name="horizontalLayout">
-                <item>
-                    <widget class="QWidget" name="wgtMainMenu" native="true">
-                        <layout class="QVBoxLayout" name="verticalLayout">
-                            <item alignment="Qt::AlignHCenter">
-                                <widget class="QLabel" name="lblConnectionStatus">
-                                    <property name="text">
-                                        <string/>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                                <widget class="QLabel" name="lblLogo">
-                                    <property name="text">
-                                        <string/>
-                                    </property>
-                                    <property name="scaledContents">
-                                        <bool>true</bool>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <spacer name="verticalSpacer">
-                                    <property name="orientation">
-                                        <enum>Qt::Vertical</enum>
-                                    </property>
-                                    <property name="sizeHint" stdset="0">
-                                        <size>
-                                            <width>20</width>
-                                            <height>40</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                            </item>
-                            <item>
-                                <widget class="QPushButton" name="btnBuildNewTunnel">
-                                    <property name="text">
-                                        <string>Build a New Tunnel</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QPushButton" name="btnConnectVPN">
-                                    <property name="text">
-                                        <string>Connect VPN</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QPushButton" name="btnDisconnectVPN">
-                                    <property name="text">
-                                        <string>Disconnect VPN</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QPushButton" name="btnDeleteTunnel">
-                                    <property name="text">
-                                        <string>Delete a Tunnel</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QPushButton" name="btnQuitApplication">
-                                    <property name="text">
-                                        <string>Quit Application</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <spacer name="verticalSpacer_2">
-                                    <property name="orientation">
-                                        <enum>Qt::Vertical</enum>
-                                    </property>
-                                    <property name="sizeHint" stdset="0">
-                                        <size>
-                                            <width>20</width>
-                                            <height>40</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                            </item>
-                        </layout>
-                    </widget>
-                </item>
-                <item>
-                    <widget class="QWidget" name="wgtConfiguration" native="true">
-                        <layout class="QVBoxLayout" name="verticalLayout_2">
-                            <item>
-                                <widget class="QLabel" name="lblTopology">
-                                    <property name="text">
-                                        <string>Topology</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item alignment="Qt::AlignTop">
-                                <widget class="QFrame" name="frmTopology">
-                                    <property name="frameShape">
-                                        <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                        <enum>QFrame::Raised</enum>
-                                    </property>
-                                    <layout class="QHBoxLayout" name="horizontalLayout_2">
-                                        <property name="leftMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="topMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="rightMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="bottomMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <item alignment="Qt::AlignHCenter">
-                                            <widget class="QRadioButton" name="radP2P">
-                                                <property name="toolTip">
-                                                    <string>Best for direct connections between two systems. Low-latency
+/* ComboBox */
+QComboBox {
+    background-color: #21252B;
+    border: 2px solid #2C313A;
+    border-radius: 12px;
+    padding: 8px;
+    padding-left: 10px;
+}
+
+QComboBox:hover {
+    border: 2px solid #8F48D5;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 25px;
+    border-left-width: 3px;
+    border-left-color: rgba(39, 44, 54, 150);
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background-image: url(&quot;resources/ui/icons/arrow-down.svg&quot;);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+QComboBox QAbstractItemView {
+    color: #DDD;
+    background-color: #21252B;
+    padding: 10px;
+    selection-background-color: #8F48D5;
+}
+</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QWidget" name="wgtMainMenu" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="lblConnectionStatus">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="lblLogo">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="btnBuildNewTunnel">
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>350</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Build a New Tunnel</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="btnConnectVPN">
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>350</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Connect VPN</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="btnDisconnectVPN">
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>350</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Disconnect VPN</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="btnDeleteTunnel">
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>350</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Delete a Tunnel</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="btnQuitApplication">
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>350</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Quit Application</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="wgtConfiguration" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="lblTopology">
+         <property name="text">
+          <string>Topology</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QFrame" name="frmTopology">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QRadioButton" name="radP2P">
+            <property name="toolTip">
+             <string>Best for direct connections between two systems. Low-latency
                                                         but less flexible.
                                                     </string>
-                                                </property>
-                                                <property name="text">
-                                                    <string>Point-to-Point (P2P)</string>
-                                                </property>
-                                                <property name="checked">
-                                                    <bool>true</bool>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                        <item alignment="Qt::AlignHCenter">
-                                            <widget class="QRadioButton" name="radSubnet">
-                                                <property name="toolTip">
-                                                    <string>Ideal for multiple connections through a single server. More
+            </property>
+            <property name="text">
+             <string>Point-to-Point (P2P)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QRadioButton" name="radSubnet">
+            <property name="toolTip">
+             <string>Ideal for multiple connections through a single server. More
                                                         flexible but higher latency.
                                                     </string>
-                                                </property>
-                                                <property name="text">
-                                                    <string>Subnet</string>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                    </layout>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QLabel" name="lblTunnelName">
-                                    <property name="text">
-                                        <string>Tunnel Name</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QFrame" name="frmTunnelName">
-                                    <property name="frameShape">
-                                        <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                        <enum>QFrame::Raised</enum>
-                                    </property>
-                                    <layout class="QHBoxLayout" name="horizontalLayout_6">
-                                        <property name="leftMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="topMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="rightMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="bottomMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <item>
-                                            <widget class="QLineEdit" name="txtTunnelName"/>
-                                        </item>
-                                        <item>
-                                            <widget class="QPushButton" name="btnRandomizeName">
-                                                <property name="text">
-                                                    <string>Randomize Name</string>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                    </layout>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QLabel" name="lblAvailableServers">
-                                    <property name="text">
-                                        <string>Available Servers</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QComboBox" name="cmbAvailableServers">
-                                    <item>
-                                        <property name="text">
-                                            <string>Bangalore (blr1)</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>New York (nyc1)</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>Frankfurt (fra1)</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>San Francisco (sfo3)</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>London (lon1)</string>
-                                        </property>
-                                    </item>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QLabel" name="lblClientPrivateIP">
-                                    <property name="text">
-                                        <string>Client's Private IP Address</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QFrame" name="frmClientPrivateIP">
-                                    <property name="frameShape">
-                                        <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                        <enum>QFrame::Raised</enum>
-                                    </property>
-                                    <layout class="QHBoxLayout" name="horizontalLayout_3">
-                                        <property name="leftMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="topMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="rightMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="bottomMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <item>
-                                            <widget class="QLineEdit" name="txtClientPrivateIP"/>
-                                        </item>
-                                        <item>
-                                            <widget class="QPushButton" name="btnGetPrivateIP">
-                                                <property name="text">
-                                                    <string>Get My Private IP</string>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                    </layout>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QLabel" name="lblPortNumber">
-                                    <property name="text">
-                                        <string>Port Number</string>
-                                    </property>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QFrame" name="frmPortNumber">
-                                    <property name="frameShape">
-                                        <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                        <enum>QFrame::Raised</enum>
-                                    </property>
-                                    <layout class="QHBoxLayout" name="horizontalLayout_4">
-                                        <property name="leftMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="topMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="rightMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="bottomMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <item alignment="Qt::AlignHCenter">
-                                            <widget class="QRadioButton" name="rad1194UDP">
-                                                <property name="toolTip">
-                                                    <string>Official IANA port for OpenVPN. UDP is faster and uses fewer
+            </property>
+            <property name="text">
+             <string>Subnet</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblTunnelName">
+         <property name="text">
+          <string>Tunnel Name</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frmTunnelName">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLineEdit" name="txtTunnelName"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnRandomizeName">
+            <property name="text">
+             <string>Randomize Name</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblAvailableServers">
+         <property name="text">
+          <string>Available Servers</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="cmbAvailableServers">
+         <item>
+          <property name="text">
+           <string>Bangalore (blr1)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>New York (nyc1)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Frankfurt (fra1)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>San Francisco (sfo3)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>London (lon1)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblClientPrivateIP">
+         <property name="text">
+          <string>Client's Private IP Address</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frmClientPrivateIP">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLineEdit" name="txtClientPrivateIP"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnGetPrivateIP">
+            <property name="text">
+             <string>Get My Private IP</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblPortNumber">
+         <property name="text">
+          <string>Port Number</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frmPortNumber">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QRadioButton" name="rad1194UDP">
+            <property name="toolTip">
+             <string>Official IANA port for OpenVPN. UDP is faster and uses fewer
                                                         resources than TCP.
                                                     </string>
-                                                </property>
-                                                <property name="text">
-                                                    <string>1194 (UDP)</string>
-                                                </property>
-                                                <property name="checked">
-                                                    <bool>true</bool>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                        <item alignment="Qt::AlignHCenter">
-                                            <widget class="QRadioButton" name="rad443TCP">
-                                                <property name="toolTip">
-                                                    <string>Standard HTTPS port. Using TCP 443 masks VPN traffic as web
+            </property>
+            <property name="text">
+             <string>1194 (UDP)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QRadioButton" name="rad443TCP">
+            <property name="toolTip">
+             <string>Standard HTTPS port. Using TCP 443 masks VPN traffic as web
                                                         traffic, useful for bypassing VPN blocks.
                                                     </string>
-                                                </property>
-                                                <property name="text">
-                                                    <string>443 (TCP)</string>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                        <item alignment="Qt::AlignHCenter">
-                                            <widget class="QRadioButton" name="rad53UDP">
-                                                <property name="toolTip">
-                                                    <string>Standard DNS port. Using UDP 53 mimics DNS traffic, aiding
+            </property>
+            <property name="text">
+             <string>443 (TCP)</string>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QRadioButton" name="rad53UDP">
+            <property name="toolTip">
+             <string>Standard DNS port. Using UDP 53 mimics DNS traffic, aiding
                                                         in bypassing restrictions but risks flagging in monitored
                                                         networks.
                                                     </string>
-                                                </property>
-                                                <property name="text">
-                                                    <string>53 (UDP)</string>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                    </layout>
-                                </widget>
-                            </item>
-                            <item>
-                                <widget class="QFrame" name="frmActions">
-                                    <property name="frameShape">
-                                        <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                        <enum>QFrame::Raised</enum>
-                                    </property>
-                                    <layout class="QHBoxLayout" name="horizontalLayout_5">
-                                        <property name="leftMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="topMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="rightMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <property name="bottomMargin">
-                                            <number>0</number>
-                                        </property>
-                                        <item>
-                                            <widget class="QPushButton" name="btnStartOver">
-                                                <property name="text">
-                                                    <string>Cancel</string>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                        <item>
-                                            <widget class="QPushButton" name="btnGenerateConfigurations">
-                                                <property name="text">
-                                                    <string>Generate Configurations</string>
-                                                </property>
-                                            </widget>
-                                        </item>
-                                    </layout>
-                                </widget>
-                            </item>
-                        </layout>
-                    </widget>
-                </item>
-            </layout>
+            </property>
+            <property name="text">
+             <string>53 (UDP)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-    </widget>
-    <resources/>
-    <connections/>
+       </item>
+       <item>
+        <widget class="QFrame" name="frmActions">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="btnStartOver">
+            <property name="text">
+             <string>Cancel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnGenerateConfigurations">
+            <property name="text">
+             <string>Generate Configurations</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
 </ui>

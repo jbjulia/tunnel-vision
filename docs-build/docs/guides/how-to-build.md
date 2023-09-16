@@ -9,13 +9,11 @@ Tunnel vision's documentation uses Docusaurus, which is a
 
 It builds your site as simple **static HTML, JavaScript and CSS files**.
 
-
 ## What you need
 
 There are some requirements in order to build the docs locally. This next
 section assumes you do not have Node.js installed on your machine. Follow these
 steps to **install**. If already installed skip these steps:
-
 
 1. Update your Advanced Package Tool `apt`:
 

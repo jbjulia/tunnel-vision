@@ -55,7 +55,6 @@ to your current IP.
 3. Enter information.
 4. **Connect to server**.
 
-
 <!-- Managing Existing Tunnels
 
     Launch the Application: Run the tv.py script.

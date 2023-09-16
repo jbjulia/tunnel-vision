@@ -3,7 +3,6 @@
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern
 static website generator.
 
-
 ### Local Development
 
 ```
@@ -18,7 +17,6 @@ Most changes are reflected live without having to restart the server.
 There are some requirements in order to build the docs locally. This next
 section assumes you do not have Node.js installed on your machine. Follow these
 steps to **install**. If already installed skip these steps:
-
 
 1. Update your Advanced Package Tool `apt`:
 

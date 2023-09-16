@@ -12,10 +12,10 @@ View the following pages for more details about each aspect of the project:
 * Test Plan
 * Test matrix
 * Project classes
-  * init.py
-  * functions.py
-  * keys.py
-  * ovpn.py
+    * init.py
+    * functions.py
+    * keys.py
+    * ovpn.py
 * [Course information](../course-title-page.html)
 
 ## Project architecture
