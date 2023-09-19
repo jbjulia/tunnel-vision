@@ -9,77 +9,8 @@ import string
 import subprocess
 import sys
 
-from PyQt6.QtCore import QCoreApplication, QSize
-from PyQt6.QtWidgets import (
-    QDialog,
-    QVBoxLayout,
-    QComboBox,
-    QPushButton,
-    QDialogButtonBox,
-)
-from PyQt6.QtWidgets import QMessageBox
-
 from resources import constants as c
-
-
-def prompt_user(icon_type, title, text, buttons=None):
-    msg = QMessageBox()
-    icon_mapping = {
-        "info": QMessageBox.Icon.Information,
-        "warning": QMessageBox.Icon.Warning,
-        "critical": QMessageBox.Icon.Critical,
-        "question": QMessageBox.Icon.Question,
-    }
-    msg.setIcon(icon_mapping.get(icon_type, QMessageBox.Icon.NoIcon))
-    msg.setWindowTitle(title)
-    msg.setText(text)
-
-    clicked_button = None
-    if buttons:
-        button_flags = 0
-        for button in buttons:
-            button_flags |= getattr(QMessageBox.StandardButton, button)
-        msg.setStandardButtons(button_flags)
-
-        if msg.exec():
-            for button in buttons:
-                if msg.standardButton(msg.clickedButton()) == getattr(
-                    QMessageBox.StandardButton, button
-                ):
-                    clicked_button = button
-                    break
-
-    else:
-        msg.exec()
-
-    return clicked_button
-
-
-def create_dialog(title, options_list, callback):
-    dialog = QDialog()
-    dialog.setWindowTitle(title)
-    dialog.resize(QSize(400, 200))
-
-    layout = QVBoxLayout()
-
-    combo_box = QComboBox()
-    combo_box.addItems(options_list)
-
-    btn_action = QPushButton(title)
-
-    layout.addWidget(combo_box)
-    layout.addWidget(btn_action)
-
-    dialog.setLayout(layout)
-
-    def on_button_clicked():
-        selected_option = combo_box.currentText()
-        if selected_option:
-            callback(selected_option)
-        dialog.accept()
-
-    btn_action.clicked.connect(on_button_clicked)
-    dialog.exec()
+from src import prompt_user
 
 
 def check_os():
@@ -156,7 +87,7 @@ def validate_ip(ip_address):
         try:
             return str(ipaddress.ip_address(ip_address))
         except ValueError:
-            prompt_user(
+            prompt_user.message(
                 icon_type="warning",
                 title="Invalid IP",
                 text="Please enter a valid IP.",
@@ -169,13 +100,13 @@ def validate_port(port):
             if 1024 <= port <= 49151:
                 return port
             else:
-                prompt_user(
+                prompt_user.message(
                     icon_type="warning",
                     title="Invalid Port",
                     text="Please enter a value in the unprivileged range (1024-49151).",
                 )
         except ValueError:
-            prompt_user(
+            prompt_user.message(
                 icon_type="warning",
                 title="Invalid Port",
                 text="Please enter a numerical value",
@@ -189,21 +120,21 @@ def get_private_ip():
         s.connect(("10.255.255.255", 1))
         private_ip = s.getsockname()[0]
     except socket.gaierror:
-        prompt_user(
+        prompt_user.message(
             title="Error",
             text="There was an address related error.",
             icon_type="critical",
         )
         private_ip = "127.0.0.1"
     except socket.timeout:
-        prompt_user(
+        prompt_user.message(
             title="Error",
             text="Connection timed out.",
             icon_type="critical",
         )
         private_ip = "127.0.0.1"
     except OSError:
-        prompt_user(
+        prompt_user.message(
             title="Error",
             text="OS error, possibly related to permissions or other system-related issues",
             icon_type="critical",
@@ -234,6 +165,15 @@ def get_servers(index):
     return servers[server_list[index]]
 
 
+def find_active_tunnels():
+    active_tunnels = subprocess.run(["pgrep", "openvpn"], stdout=subprocess.PIPE)
+
+    if active_tunnels.stdout:
+        return True
+    else:
+        return False
+
+
 def copy_to_server(server_public_ip, tunnel_name):
     local_server_conf_path = f"{c.TESTS}{tunnel_name}/{tunnel_name}-server.conf"
     local_jail_path = f"{c.TESTS}{tunnel_name}/{tunnel_name}-jail"
@@ -260,16 +200,10 @@ def copy_to_server(server_public_ip, tunnel_name):
             )
             subprocess.check_call(command, shell=True)
 
-        prompt_user(
-            title="Success",
-            text="Copy to server completed successfully!",
-            icon_type="info",
-        )
-
         return True
 
     except subprocess.CalledProcessError as e:
-        prompt_user(
+        prompt_user.message(
             title="Error",
             text=f"The following error occurred when copying files to the server:\n\n{e}",
             icon_type="critical",
@@ -278,49 +212,8 @@ def copy_to_server(server_public_ip, tunnel_name):
         return False
 
 
-def dialog_select_tunnel(title):
-    dialog = QDialog()
-    dialog.setWindowTitle(title)
-    dialog.resize(400, 200)
-
-    layout = QVBoxLayout()
-    combo_box = QComboBox()
-
-    tunnels = load_json(c.TUNNELS)
-
-    if not tunnels:
-        prompt_user(
-            icon_type="info",
-            title="No Tunnels",
-            text="There are no tunnels configured.",
-        )
-        return None
-
-    combo_box.addItems(list(tunnels.keys()))
-    layout.addWidget(combo_box)
-
-    button_box = QDialogButtonBox(
-        QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-    )
-
-    # Connect the buttons to appropriate slots
-    button_box.accepted.connect(dialog.accept)
-
-    button_box.rejected.connect(dialog.reject)
-
-    layout.addWidget(button_box)
-    dialog.setLayout(layout)
-
-    result = dialog.exec()
-
-    if result == QDialog.DialogCode.Accepted:
-        return combo_box.currentText()
-    else:
-        return None
-
-
 def connect_vpn(server_ip=None, tunnel_name=None):
-    def execute_connection(server_ip, tunnel_name):
+    def execute_connection():
         try:
             ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo systemctl start openvpn@{tunnel_name}-server'"
             subprocess.run(ssh_cmd, shell=True, check=True)
@@ -333,14 +226,15 @@ def connect_vpn(server_ip=None, tunnel_name=None):
             client_cmd = f"sudo systemctl start openvpn@{tunnel_name}-client"
             subprocess.run(client_cmd, shell=True, check=True)
 
-            prompt_user(
+            prompt_user.message(
                 title="Success",
                 text="Successfully connected to the VPN.",
                 icon_type="info",
             )
             return True
+
         except Exception as e:
-            prompt_user(
+            prompt_user.message(
                 title="Error",
                 text=f"Error while connecting to VPN: {str(e)}",
                 icon_type="critical",
@@ -348,18 +242,22 @@ def connect_vpn(server_ip=None, tunnel_name=None):
             return False
 
     if not (server_ip and tunnel_name):
-        selected_tunnel = dialog_select_tunnel("Select Tunnel to Connect")
+        selected_tunnel = prompt_user.dialog("Select Tunnel to Connect")
+
         if selected_tunnel:
             tunnels = load_json(c.TUNNELS)
             server_ip = tunnels[selected_tunnel]["server_public_ip"]
             tunnel_name = selected_tunnel
 
-    return execute_connection(server_ip, tunnel_name)
+    if server_ip and tunnel_name:
+        return execute_connection()
+    else:
+        return False
 
 
 def disconnect_vpn(tunnel_name=None):
     if not tunnel_name:
-        tunnel_name = dialog_select_tunnel("Select Tunnel to Disconnect")
+        tunnel_name = prompt_user.dialog("Select Tunnel to Disconnect")
         if not tunnel_name:
             return
 
@@ -368,7 +266,9 @@ def disconnect_vpn(tunnel_name=None):
     if tunnel_name in tunnels:
         server_ip = tunnels[tunnel_name]["server_public_ip"]
     else:
-        prompt_user(icon_type="critical", title="Error", text="Tunnel not found.")
+        prompt_user.message(
+            icon_type="critical", title="Error", text="Tunnel not found."
+        )
         return
 
     try:
@@ -383,11 +283,11 @@ def disconnect_vpn(tunnel_name=None):
         ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo systemctl stop openvpn@{tunnel_name}-server'"
         subprocess.run(ssh_cmd, shell=True, check=True)
 
-        prompt_user(
+        prompt_user.message(
             icon_type="info", title="Success", text="Tunnel closed successfully."
         )
     except subprocess.CalledProcessError as e:
-        prompt_user(
+        prompt_user.message(
             icon_type="critical",
             title="Error",
             text=f"An error occurred while closing the tunnel. {e}",
@@ -395,7 +295,7 @@ def disconnect_vpn(tunnel_name=None):
 
 
 def delete_tunnel():
-    selected_tunnel = dialog_select_tunnel("Select Tunnel to Delete")
+    selected_tunnel = prompt_user.dialog("Select Tunnel to Delete")
     if not selected_tunnel:
         return
 
@@ -405,7 +305,7 @@ def delete_tunnel():
     try:
         disconnect_vpn(selected_tunnel)
     except subprocess.CalledProcessError as e:
-        prompt_user(
+        prompt_user.message(
             icon_type="critical",
             title="Error",
             text=f"An error occurred while closing the tunnel. {e}",
@@ -426,25 +326,8 @@ def delete_tunnel():
         tunnel_folder_path = os.path.join(c.TESTS, selected_tunnel)
         shutil.rmtree(tunnel_folder_path)
     except Exception as e:
-        prompt_user(
+        prompt_user.message(
             icon_type="critical",
             title="Error",
             text=f"Failed to delete the tunnel: {e}",
         )
-
-
-def quit_application():
-    active_tunnels = subprocess.run(["pgrep", "openvpn"], stdout=subprocess.PIPE)
-
-    if active_tunnels.stdout:
-        user_response = prompt_user(
-            icon_type="question",
-            title="Active Tunnels",
-            text="Active OpenVPN tunnels found. Would you like to close them?",
-            buttons=("Yes", "No"),
-        )
-
-        if user_response == "Yes":
-            disconnect_vpn()
-
-    QCoreApplication.quit()

@@ -2,7 +2,7 @@ import os
 import shutil
 
 from resources import constants as c
-from src import keys, directives as d, functions as f
+from src import keys, prompt_user, directives as d, utils
 
 
 class OpenVPN:
@@ -49,7 +49,7 @@ class OpenVPN:
             os.chown(f"{c.TESTS}{self.tunnel_name}", os.getuid(), os.getgid())
             chown_success = True
         except PermissionError:
-            f.prompt_user(
+            prompt_user.message(
                 icon_type="critical",
                 title="Permission Error",
                 text=f"Failed to set ownership for {self.tunnel_name}.\n\nCheck if you have sufficient permissions.",
@@ -65,7 +65,7 @@ class OpenVPN:
         ):
             return True
         else:
-            f.prompt_user(
+            prompt_user.message(
                 icon_type="critical",
                 title="Operation Failed",
                 text="One or more operations failed.",
@@ -106,7 +106,7 @@ class OpenVPN:
 
         for file_path in [conf_path, ta_key_path]:
             if not os.path.isfile(file_path):
-                f.prompt_user(
+                prompt_user.message(
                     icon_type="critical",
                     title="File Not Found",
                     text=f"The file '{file_path}' does not exist.\n\nPlease try again.",
@@ -137,7 +137,7 @@ class OpenVPN:
             os.makedirs(jail_dir, exist_ok=True)
             os.chmod(jail_dir, 0o1777)
         except PermissionError:
-            f.prompt_user(
+            prompt_user.message(
                 icon_type="critical",
                 title="Permission Error",
                 text=f"Failed to create jail for {self.tunnel_name}.\n\nCheck if you have sufficient permissions.",
@@ -154,7 +154,7 @@ class OpenVPN:
         dest_dir = os.path.join(c.TESTS, self.tunnel_name)
 
         if not os.path.exists(src_dir):
-            f.prompt_user(
+            prompt_user.message(
                 icon_type="critical",
                 title="File Move Error",
                 text=f"Source directory {src_dir} does not exist.",
@@ -169,7 +169,7 @@ class OpenVPN:
                 try:
                     shutil.move(src_file_path, dest_file_path)
                 except shutil.Error as e:
-                    f.prompt_user(
+                    prompt_user.message(
                         icon_type="critical",
                         title="File Move Error",
                         text=f"Failed to move {file_name}. Error: {e}",
@@ -185,7 +185,7 @@ class OpenVPN:
             try:
                 shutil.rmtree(easy_rsa_dir)
             except shutil.Error as e:
-                f.prompt_user(
+                prompt_user.message(
                     icon_type="critical",
                     title="Directory Deletion Error",
                     text=f"Failed to remove easy-rsa directory. Error: {e}",
@@ -207,6 +207,6 @@ class OpenVPN:
             }
         }
 
-        f.dump_json(config, c.TUNNELS)
+        utils.dump_json(config, c.TUNNELS)
 
         return True

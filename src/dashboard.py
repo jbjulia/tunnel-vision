@@ -1,14 +1,20 @@
 from PyQt6 import uic, QtGui
-from PyQt6.QtCore import QPropertyAnimation, QEasingCurve, Qt, QTimer, QSize
+from PyQt6.QtCore import (
+    QPropertyAnimation,
+    QEasingCurve,
+    Qt,
+    QTimer,
+    QSize,
+    QCoreApplication,
+)
 from PyQt6.QtGui import QMouseEvent, QIcon, QPixmap
 from PyQt6.QtWidgets import (
     QGraphicsOpacityEffect,
     QMainWindow,
-    QMessageBox,
     QApplication,
 )
 
-from src import functions as f
+from src import prompt_user, utils
 from src.ovpn import OpenVPN
 
 
@@ -34,7 +40,6 @@ class Dashboard(QMainWindow):
         self.lblLogo.setGraphicsEffect(self.opacity_effect)
         self.setup_opacity_animation()
         self.setup_icons()
-        self.lblConnectionStatus.setText(f.curl_ip_info())
 
     def start_timer(self):
         self.timer = QTimer(self)
@@ -42,7 +47,7 @@ class Dashboard(QMainWindow):
         self.timer.start(5000)  # 1000 milliseconds = 1 second
 
     def update_ip_label(self):
-        self.lblConnectionStatus.setText(f.curl_ip_info())
+        self.lblConnectionStatus.setText(utils.curl_ip_info())
 
     def setup_opacity_animation(self):
         self.opacity_animation = QPropertyAnimation(self.opacity_effect, b"opacity")
@@ -62,10 +67,10 @@ class Dashboard(QMainWindow):
 
     def connect_signals(self):
         self.btnBuildNewTunnel.clicked.connect(self.build_new_tunnel)
-        self.btnConnectVPN.clicked.connect(f.connect_vpn)
-        self.btnDeleteTunnel.clicked.connect(f.delete_tunnel)
-        self.btnDisconnectVPN.clicked.connect(f.disconnect_vpn)
-        self.btnQuitApplication.clicked.connect(f.quit_application)
+        self.btnConnectVPN.clicked.connect(utils.connect_vpn)
+        self.btnDeleteTunnel.clicked.connect(utils.delete_tunnel)
+        self.btnDisconnectVPN.clicked.connect(utils.disconnect_vpn)
+        self.btnQuitApplication.clicked.connect(self.quit_application)
 
         self.btnRandomizeName.clicked.connect(self.randomize_name)
         self.btnGetPrivateIP.clicked.connect(self.get_private_ip)
@@ -76,10 +81,10 @@ class Dashboard(QMainWindow):
         self.set_state("CONFIGURATION")
 
     def randomize_name(self):
-        self.txtTunnelName.setText(f.create_tunnel_name())
+        self.txtTunnelName.setText(utils.create_tunnel_name())
 
     def get_private_ip(self):
-        self.txtClientPrivateIP.setText(f.get_private_ip())
+        self.txtClientPrivateIP.setText(utils.get_private_ip())
 
     def start_over(self):
         self.txtTunnelName.setText("")
@@ -90,13 +95,10 @@ class Dashboard(QMainWindow):
 
         self.set_state("MENU")
 
-    def display_warning(self, title, text):
-        QMessageBox.warning(self, title, text, QMessageBox.StandardButton.Ok)
-
     def generate_configurations(self):
         if self.validate_fields():
             tunnel_name = self.txtTunnelName.text().strip()
-            ip_dict = f.get_servers(self.cmbAvailableServers.currentIndex())
+            ip_dict = utils.get_servers(self.cmbAvailableServers.currentIndex())
 
             if self.rad1194UDP.isChecked():
                 port_number = "1194"
@@ -122,19 +124,22 @@ class Dashboard(QMainWindow):
                 protocol=protocol,
             )
 
-            ip_dict = f.get_servers(self.cmbAvailableServers.currentIndex())
+            ip_dict = utils.get_servers(self.cmbAvailableServers.currentIndex())
 
-            f.copy_to_server(ip_dict["public_ip"], tunnel_name)
+            utils.copy_to_server(ip_dict["public_ip"], tunnel_name)
 
-            reply = QMessageBox.question(
-                self,
-                "Success",
-                "Tunnel configured successfully.\n\nWould you like to attempt to connect?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            response = prompt_user.message(
+                icon_type="question",
+                title="Success",
+                text="Your tunnel has been configured successfully.\n\nWould you like to "
+                "attempt to connect?",
+                buttons=["Yes", "No"],
             )
 
-            if reply == QMessageBox.StandardButton.Yes:
-                f.connect_vpn(server_ip=ip_dict["public_ip"], tunnel_name=tunnel_name)
+            if response == "Yes":
+                utils.connect_vpn(
+                    server_ip=ip_dict["public_ip"], tunnel_name=tunnel_name
+                )
 
             self.set_state("MENU")
 
@@ -146,8 +151,10 @@ class Dashboard(QMainWindow):
                 self.cmbAvailableServers.currentIndex() != -1,
             ]
         ):
-            self.display_warning(
-                "Missing Fields", "Please fill out the required fields."
+            prompt_user.message(
+                icon_type="warning",
+                title="Missing Fields",
+                text="Please fill out the required fields.",
             )
             return False
         return True
@@ -196,3 +203,18 @@ class Dashboard(QMainWindow):
         if event.button() == Qt.MouseButton.LeftButton:
             self.offset = None
             event.accept()
+
+    def quit_application(self):
+        if utils.find_active_tunnels():
+            user_response = prompt_user.message(
+                icon_type="question",
+                title="Active Tunnels",
+                text="Active OpenVPN tunnels found. Would you like to close them?",
+                buttons=("Yes", "No"),
+            )
+
+            if user_response == "Yes":
+                utils.disconnect_vpn()
+
+        self.timer.stop()
+        QCoreApplication.quit()

@@ -5,7 +5,7 @@ import sys
 from PyQt6.QtWidgets import QApplication
 
 from resources import constants as c
-from src import functions as f
+from src import utils as f
 from src.dashboard import Dashboard
 
 if __name__ == "__main__":

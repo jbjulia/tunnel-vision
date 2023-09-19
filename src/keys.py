@@ -4,7 +4,7 @@ import subprocess
 import pexpect
 
 from resources import constants as c
-from src import functions as f
+from src import prompt_user
 
 
 def clone_easy_rsa(tunnel_name):
@@ -16,7 +16,7 @@ def clone_easy_rsa(tunnel_name):
             shell=True,
         )
     except subprocess.CalledProcessError as e:
-        f.prompt_user(icon_type="critical", title="Operation Failed", text=str(e))
+        prompt_user.message(icon_type="critical", title="Operation Failed", text=str(e))
         return False
 
     return True
@@ -28,7 +28,7 @@ def init_pki(tunnel_name):
     try:
         os.chdir(target_dir)
     except OSError as e:
-        f.prompt_user(icon_type="critical", title="Operation Failed", text=str(e))
+        prompt_user.message(icon_type="critical", title="Operation Failed", text=str(e))
         return False
 
     try:
@@ -38,7 +38,7 @@ def init_pki(tunnel_name):
         child.sendline(f"{tunnel_name}")
         child.expect(pexpect.EOF)
     except Exception as e:
-        f.prompt_user(icon_type="critical", title="Operation Failed", text=str(e))
+        prompt_user.message(icon_type="critical", title="Operation Failed", text=str(e))
         return False
 
     return True
@@ -50,7 +50,7 @@ def generate_certificates(tunnel_name):
     try:
         os.chdir(target_dir)
     except OSError as e:
-        f.prompt_user(icon_type="critical", title="Operation Failed", text=str(e))
+        prompt_user.message(icon_type="critical", title="Operation Failed", text=str(e))
         return False
 
     try:
@@ -68,7 +68,7 @@ def generate_certificates(tunnel_name):
         client_child.sendline("yes")
         client_child.expect(pexpect.EOF)
     except Exception as e:
-        f.prompt_user(icon_type="critical", title="Operation Failed", text=str(e))
+        prompt_user.message(icon_type="critical", title="Operation Failed", text=str(e))
         return False
 
     return True
@@ -80,13 +80,13 @@ def generate_ta_key(tunnel_name):
     try:
         os.chdir(target_dir)
     except OSError as e:
-        f.prompt_user(icon_type="critical", title="Operation Failed", text=str(e))
+        prompt_user.message(icon_type="critical", title="Operation Failed", text=str(e))
         return False
 
     try:
         subprocess.run(["openvpn", "--genkey", "secret", "ta.key"], check=True)
     except subprocess.CalledProcessError as e:
-        f.prompt_user(icon_type="critical", title="Operation Failed", text=str(e))
+        prompt_user.message(icon_type="critical", title="Operation Failed", text=str(e))
         return False
 
     return True
