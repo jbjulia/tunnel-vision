@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>617</width>
+    <width>780</width>
     <height>592</height>
    </rect>
   </property>
@@ -27,35 +27,6 @@ QWidget {
 /* Main Window */
 QMainWindow {
     border: none;
-}
-
-/* QDialog */
-QDialog {
-    color: #DDD;
-    background-color: #282C34;
-    border: 1px solid #3C4048;
-    border-radius: 5px;
-    padding: 7px;
-}
-
-/* QDialogButtonBox */
-QDialogButtonBox QPushButton {
-    border: 2px solid #2C313A;
-    background-color: transparent;
-    padding: 14px 22px;
-    border-radius: 25px;
-    outline: none;
-}
-
-QDialogButtonBox QPushButton:hover {
-    background-color: #3C4048;
-    border: 2px solid #8F48D5;
-    color: #FFF;
-}
-
-QDialogButtonBox QPushButton:pressed {
-    background-color: #8F48D5;
-    color: #FFF;
 }
 
 /* ToolTips */
