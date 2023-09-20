@@ -31,7 +31,7 @@ if __name__ == "__main__":
         sys.exit(app.exec())
 
     else:
-        f.prompt_user(
+        f.prompt_user.message(
             title="Error",
             text="This application is intended to be run on Linux (e.g. Ubuntu, Pop!_OS) with superuser "
             "privileges.\n\nPlease ensure you are using the correct operating system and that you are running this "
