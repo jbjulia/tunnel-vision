@@ -158,11 +158,13 @@ def dump_json(data, json_file):
         json.dump(data, out_file, indent=4, sort_keys=True)
 
 
-def get_servers(index):
+def get_servers(server_name):
     servers = load_json(c.SERVERS)
-    server_list = list(servers.keys())
 
-    return servers[server_list[index]]
+    if server_name in servers:
+        return servers[server_name]
+    else:
+        return None
 
 
 def find_active_tunnels():

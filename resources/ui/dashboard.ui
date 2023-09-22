@@ -402,22 +402,22 @@ QComboBox QAbstractItemView {
          </item>
          <item>
           <property name="text">
-           <string>New York (nyc1)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
            <string>Frankfurt (fra1)</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>San Francisco (sfo3)</string>
+           <string>London (lon1)</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>London (lon1)</string>
+           <string>New York (nyc1)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>San Francisco (sfo3)</string>
           </property>
          </item>
         </widget>
