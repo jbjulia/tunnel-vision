@@ -245,7 +245,7 @@ QComboBox QAbstractItemView {
           </size>
          </property>
          <property name="text">
-          <string>Delete a Tunnel</string>
+          <string>Delete Tunnel</string>
          </property>
         </widget>
        </item>
@@ -563,9 +563,9 @@ QComboBox QAbstractItemView {
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btnGenerateConfigurations">
+           <widget class="QPushButton" name="btnCreateTunnel">
             <property name="text">
-             <string>Generate Configurations</string>
+             <string>Create Tunnel</string>
             </property>
            </widget>
           </item>

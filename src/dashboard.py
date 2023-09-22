@@ -75,7 +75,7 @@ class Dashboard(QMainWindow):
         self.btnRandomizeName.clicked.connect(self.randomize_name)
         self.btnGetPrivateIP.clicked.connect(self.get_private_ip)
         self.btnStartOver.clicked.connect(self.start_over)
-        self.btnGenerateConfigurations.clicked.connect(self.generate_configurations)
+        self.btnCreateTunnel.clicked.connect(self.create_tunnel)
 
     def build_new_tunnel(self):
         self.set_state("CONFIGURATION")
@@ -95,7 +95,7 @@ class Dashboard(QMainWindow):
 
         self.set_state("MENU")
 
-    def generate_configurations(self):
+    def create_tunnel(self):
         if self.validate_fields():
             tunnel_name = self.txtTunnelName.text().strip()
             ip_dict = utils.get_servers(self.cmbAvailableServers.currentIndex())
@@ -131,15 +131,13 @@ class Dashboard(QMainWindow):
             response = prompt_user.message(
                 icon_type="question",
                 title="Success",
-                text="Your tunnel has been configured successfully.\n\nWould you like to "
+                text="Your tunnel has been successfully created.\n\nWould you like to "
                 "attempt to connect?",
                 buttons=["Yes", "No"],
             )
 
             if response == "Yes":
-                utils.connect_vpn(
-                    server_ip=ip_dict["public_ip"], tunnel_name=tunnel_name
-                )
+                utils.connect_vpn(prompt=False)
 
             self.set_state("MENU")
 

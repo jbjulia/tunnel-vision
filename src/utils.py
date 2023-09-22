@@ -212,10 +212,35 @@ def copy_to_server(server_public_ip, tunnel_name):
         return False
 
 
-def connect_vpn(server_ip=None, tunnel_name=None):
-    def execute_connection():
+def connect_vpn(prompt=True):
+    tunnels = load_json(c.TUNNELS)
+
+    if not tunnels:
+        prompt_user.message(
+            icon_type="info",
+            title="No Tunnels",
+            text="No tunnels are currently configured.",
+        )
+        return False
+
+    ssh_flags = "-o StrictHostKeyChecking=no"
+
+    if prompt:
+        confirmed = prompt_user.message(
+            icon_type="question",
+            title="Confirm Connection",
+            text="Are you sure you want to connect?",
+            buttons=["Yes", "No"],
+        )
+
+        if confirmed != "Yes":
+            return False
+
+    for tunnel_name, tunnel_info in tunnels.items():
+        server_ip = tunnel_info["server_public_ip"]
+
         try:
-            ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo systemctl start openvpn@{tunnel_name}-server'"
+            ssh_cmd = f"sshpass -p {c.PASS} ssh {ssh_flags} root@{server_ip} 'sudo systemctl start openvpn@{tunnel_name}-server'"
             subprocess.run(ssh_cmd, shell=True, check=True)
 
             local_client_conf_path = f"{c.TESTS}{tunnel_name}/{tunnel_name}-client.conf"
@@ -231,6 +256,7 @@ def connect_vpn(server_ip=None, tunnel_name=None):
                 text="Successfully connected to the VPN.",
                 icon_type="info",
             )
+
             return True
 
         except Exception as e:
@@ -239,95 +265,110 @@ def connect_vpn(server_ip=None, tunnel_name=None):
                 text=f"Error while connecting to VPN: {str(e)}",
                 icon_type="critical",
             )
-            return False
 
-    if not (server_ip and tunnel_name):
-        selected_tunnel = prompt_user.dialog("Select Tunnel to Connect")
-
-        if selected_tunnel:
-            tunnels = load_json(c.TUNNELS)
-            server_ip = tunnels[selected_tunnel]["server_public_ip"]
-            tunnel_name = selected_tunnel
-
-    if server_ip and tunnel_name:
-        return execute_connection()
-    else:
-        return False
+    return False
 
 
-def disconnect_vpn(tunnel_name=None):
-    if not tunnel_name:
-        tunnel_name = prompt_user.dialog("Select Tunnel to Disconnect")
-        if not tunnel_name:
-            return
-
-    # Load tunnel information
+def disconnect_vpn(prompt=True):
     tunnels = load_json(c.TUNNELS)
-    if tunnel_name in tunnels:
-        server_ip = tunnels[tunnel_name]["server_public_ip"]
-    else:
+
+    if not tunnels:
         prompt_user.message(
-            icon_type="critical", title="Error", text="Tunnel not found."
+            icon_type="info",
+            title="No Tunnels",
+            text="No tunnels are currently configured.",
         )
         return
 
-    try:
-        # Stop client side service
-        subprocess.run(
-            [f"sudo systemctl stop openvpn@{tunnel_name}-client"],
-            shell=True,
-            check=True,
+    ssh_flags = "-o StrictHostKeyChecking=no"
+
+    if prompt:
+        confirmed = prompt_user.message(
+            icon_type="question",
+            title="Confirm Disconnection",
+            text="Are you sure you want to disconnect?",
+            buttons=["Yes", "No"],
         )
 
-        # Stop server side service via SSH
-        ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo systemctl stop openvpn@{tunnel_name}-server'"
-        subprocess.run(ssh_cmd, shell=True, check=True)
+        if confirmed != "Yes":
+            return
 
-        prompt_user.message(
-            icon_type="info", title="Success", text="Tunnel closed successfully."
-        )
-    except subprocess.CalledProcessError as e:
-        prompt_user.message(
-            icon_type="critical",
-            title="Error",
-            text=f"An error occurred while closing the tunnel. {e}",
-        )
+    for tunnel_name, tunnel_info in tunnels.items():
+        server_ip = tunnel_info["server_public_ip"]
+
+        try:
+            client_cmd = f"sudo systemctl stop openvpn@{tunnel_name}-client"
+            subprocess.run(client_cmd, shell=True, check=True)
+
+            ssh_cmd = f"sshpass -p {c.PASS} ssh {ssh_flags} root@{server_ip} 'sudo systemctl stop openvpn@{tunnel_name}-server'"
+            subprocess.run(ssh_cmd, shell=True, check=True)
+
+            prompt_user.message(
+                title="Success",
+                text="Successfully disconnected from the VPN.",
+                icon_type="info",
+            )
+        except Exception as e:
+            prompt_user.message(
+                title="Error",
+                text=f"An error occurred while closing the tunnel. {e}",
+                icon_type="critical",
+            )
 
 
 def delete_tunnel():
-    selected_tunnel = prompt_user.dialog("Select Tunnel to Delete")
-    if not selected_tunnel:
-        return
-
     tunnels = load_json(c.TUNNELS)
-    server_ip = tunnels[selected_tunnel]["server_public_ip"]
 
-    try:
-        disconnect_vpn(selected_tunnel)
-    except subprocess.CalledProcessError as e:
+    if not tunnels:
         prompt_user.message(
-            icon_type="critical",
-            title="Error",
-            text=f"An error occurred while closing the tunnel. {e}",
+            icon_type="info",
+            title="No Tunnels",
+            text="No tunnels are currently configured.",
         )
         return
 
-    try:
-        ssh_cmd = f"sshpass -p {c.PASS} ssh root@{server_ip} 'sudo rm -rf /etc/openvpn/{selected_tunnel}*'"
-        subprocess.run(ssh_cmd, shell=True, check=True)
+    ssh_flags = "-o StrictHostKeyChecking=no"
 
-        local_client_conf_path = f"/etc/openvpn/{selected_tunnel}*"
-        remove_client_conf_cmd = f"sudo rm -f {local_client_conf_path}"
-        subprocess.run(remove_client_conf_cmd, shell=True, check=True)
+    confirmed = prompt_user.message(
+        icon_type="question",
+        title="Confirm Deletion",
+        text="Are you sure you want to delete all tunnels?",
+        buttons=["Yes", "No"],
+    )
 
-        del tunnels[selected_tunnel]
-        dump_json(tunnels, c.TUNNELS)
+    if confirmed != "Yes":
+        return
 
-        tunnel_folder_path = os.path.join(c.TESTS, selected_tunnel)
-        shutil.rmtree(tunnel_folder_path)
-    except Exception as e:
-        prompt_user.message(
-            icon_type="critical",
-            title="Error",
-            text=f"Failed to delete the tunnel: {e}",
-        )
+    for tunnel_name, tunnel_info in tunnels.items():
+        server_ip = tunnel_info["server_public_ip"]
+
+        try:
+            disconnect_vpn(prompt=False)
+        except subprocess.CalledProcessError as e:
+            prompt_user.message(
+                icon_type="critical",
+                title="Error",
+                text=f"An error occurred while closing the tunnel. {e}",
+            )
+            continue  # Skip to the next tunnel
+
+        try:
+            ssh_cmd = f"sshpass -p {c.PASS} ssh {ssh_flags} root@{server_ip} 'sudo rm -rf /etc/openvpn/{tunnel_name}*'"
+            subprocess.run(ssh_cmd, shell=True, check=True)
+
+            local_client_conf_path = f"/etc/openvpn/{tunnel_name}*"
+            remove_client_conf_cmd = f"sudo rm -f {local_client_conf_path}"
+            subprocess.run(remove_client_conf_cmd, shell=True, check=True)
+
+            del tunnels[tunnel_name]
+            dump_json(tunnels, c.TUNNELS)
+
+            tunnel_folder_path = os.path.join(c.TESTS, tunnel_name)
+            shutil.rmtree(tunnel_folder_path)
+
+        except Exception as e:
+            prompt_user.message(
+                icon_type="critical",
+                title="Error",
+                text=f"Failed to delete a tunnel: {e}",
+            )
