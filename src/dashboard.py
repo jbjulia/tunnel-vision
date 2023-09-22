@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
     QApplication,
 )
 
+from resources import constants as c
 from src import prompt_user, utils
 from src.ovpn import OpenVPN
 
@@ -97,21 +98,32 @@ class Dashboard(QMainWindow):
 
     def create_tunnel(self):
         if self.validate_fields():
+            existing_tunnels = utils.load_json(c.TUNNELS)
+            if existing_tunnels:
+                response = prompt_user.message(
+                    icon_type="question",
+                    title="Tunnel Already Exist",
+                    text="A tunnel already exists. Would you like to delete it and create a new one?",
+                    buttons=["Yes", "No"],
+                )
+                if response == "No":
+                    self.set_state("MENU")
+                    return
+                else:
+                    utils.delete_tunnel(prompt=False)
+
             tunnel_name = self.txtTunnelName.text().strip()
-            ip_dict = utils.get_servers(self.cmbAvailableServers.currentIndex())
+            selected_server = self.cmbAvailableServers.currentText()
+            ip_dict = utils.get_servers(selected_server)
 
             if self.rad1194UDP.isChecked():
-                port_number = "1194"
-                protocol = "udp"
+                port_number, protocol = "1194", "udp"
             elif self.rad443TCP.isChecked():
-                port_number = "443"
-                protocol = "tcp"
+                port_number, protocol = "443", "tcp"
             elif self.rad53UDP.isChecked():
-                port_number = "53"
-                protocol = "udp"
+                port_number, protocol = "53", "udp"
             else:
-                port_number = "1194"
-                protocol = "udp"
+                port_number, protocol = "1194", "udp"
 
             OpenVPN(
                 connection_type="p2p" if self.radP2P.isChecked() else "subnet",
@@ -124,15 +136,12 @@ class Dashboard(QMainWindow):
                 protocol=protocol,
             )
 
-            ip_dict = utils.get_servers(self.cmbAvailableServers.currentIndex())
-
             utils.copy_to_server(ip_dict["public_ip"], tunnel_name)
 
             response = prompt_user.message(
                 icon_type="question",
                 title="Success",
-                text="Your tunnel has been successfully created.\n\nWould you like to "
-                "attempt to connect?",
+                text="Your tunnel has been successfully created.\n\nWould you like to attempt to connect?",
                 buttons=["Yes", "No"],
             )
 

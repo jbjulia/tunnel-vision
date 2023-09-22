@@ -395,6 +395,9 @@ QComboBox QAbstractItemView {
        </item>
        <item>
         <widget class="QComboBox" name="cmbAvailableServers">
+         <property name="currentIndex">
+          <number>-1</number>
+         </property>
          <item>
           <property name="text">
            <string>Bangalore (blr1)</string>

@@ -241,6 +241,25 @@ def connect_vpn(prompt=True):
     for tunnel_name, tunnel_info in tunnels.items():
         server_ip = tunnel_info["server_public_ip"]
 
+        # Check if tunnel is already connected
+        check_tunnel_status_cmd = (
+            f"sudo systemctl is-active --quiet openvpn@{tunnel_name}-client"
+        )
+        tunnel_status = subprocess.run(
+            check_tunnel_status_cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        if tunnel_status.returncode == 0:
+            prompt_user.message(
+                title="Already Connected",
+                text="The VPN tunnel is already connected. Disconnecting to reconnect.",
+                icon_type="warning",
+            )
+            disconnect_vpn(prompt=False)
+
         try:
             ssh_cmd = f"sshpass -p {c.PASS} ssh {ssh_flags} root@{server_ip} 'sudo systemctl start openvpn@{tunnel_name}-server'"
             subprocess.run(ssh_cmd, shell=True, check=True)
@@ -253,11 +272,12 @@ def connect_vpn(prompt=True):
             client_cmd = f"sudo systemctl start openvpn@{tunnel_name}-client"
             subprocess.run(client_cmd, shell=True, check=True)
 
-            prompt_user.message(
-                title="Success",
-                text="Successfully connected to the VPN.",
-                icon_type="info",
-            )
+            if prompt:
+                prompt_user.message(
+                    title="Success",
+                    text="Successfully connected to the VPN.",
+                    icon_type="info",
+                )
 
             return True
 
@@ -305,11 +325,12 @@ def disconnect_vpn(prompt=True):
             ssh_cmd = f"sshpass -p {c.PASS} ssh {ssh_flags} root@{server_ip} 'sudo systemctl stop openvpn@{tunnel_name}-server'"
             subprocess.run(ssh_cmd, shell=True, check=True)
 
-            prompt_user.message(
-                title="Success",
-                text="Successfully disconnected from the VPN.",
-                icon_type="info",
-            )
+            if prompt:
+                prompt_user.message(
+                    title="Success",
+                    text="Successfully disconnected from the VPN.",
+                    icon_type="info",
+                )
         except Exception as e:
             prompt_user.message(
                 title="Error",
@@ -318,7 +339,7 @@ def disconnect_vpn(prompt=True):
             )
 
 
-def delete_tunnel():
+def delete_tunnel(prompt=True):
     tunnels = load_json(c.TUNNELS)
 
     if not tunnels:
@@ -331,15 +352,18 @@ def delete_tunnel():
 
     ssh_flags = "-o StrictHostKeyChecking=no"
 
-    confirmed = prompt_user.message(
-        icon_type="question",
-        title="Confirm Deletion",
-        text="Are you sure you want to delete all tunnels?",
-        buttons=["Yes", "No"],
-    )
+    if prompt:
+        confirmed = prompt_user.message(
+            icon_type="question",
+            title="Confirm Deletion",
+            text="Are you sure you want to delete all tunnels?",
+            buttons=["Yes", "No"],
+        )
 
-    if confirmed != "Yes":
-        return
+        if confirmed != "Yes":
+            return
+
+    tunnel_names_to_delete = []
 
     for tunnel_name, tunnel_info in tunnels.items():
         server_ip = tunnel_info["server_public_ip"]
@@ -352,7 +376,6 @@ def delete_tunnel():
                 title="Error",
                 text=f"An error occurred while closing the tunnel. {e}",
             )
-            continue  # Skip to the next tunnel
 
         try:
             ssh_cmd = f"sshpass -p {c.PASS} ssh {ssh_flags} root@{server_ip} 'sudo rm -rf /etc/openvpn/{tunnel_name}*'"
@@ -362,8 +385,7 @@ def delete_tunnel():
             remove_client_conf_cmd = f"sudo rm -f {local_client_conf_path}"
             subprocess.run(remove_client_conf_cmd, shell=True, check=True)
 
-            del tunnels[tunnel_name]
-            dump_json(tunnels, c.TUNNELS)
+            tunnel_names_to_delete.append(tunnel_name)
 
             tunnel_folder_path = os.path.join(c.TESTS, tunnel_name)
             shutil.rmtree(tunnel_folder_path)
@@ -374,3 +396,8 @@ def delete_tunnel():
                 title="Error",
                 text=f"Failed to delete a tunnel: {e}",
             )
+
+    for tunnel_name in tunnel_names_to_delete:
+        del tunnels[tunnel_name]
+
+    dump_json(tunnels, c.TUNNELS)
