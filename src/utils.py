@@ -191,7 +191,7 @@ def copy_to_server(server_public_ip, tunnel_name):
 
     try:
         for item, (local_path, destination) in local_paths.items():
-            command = f"sshpass -p {c.PASS} scp {scp_flags} {'-r' if 'jail' in item else ''} {local_path} {tmp_path}"
+            command = f"sshpass -p {c.PASS} scp {scp_flags} {ssh_flags} {'-r' if 'jail' in item else ''} {local_path} {tmp_path}"
             subprocess.check_call(command, shell=True)
 
             command = (
