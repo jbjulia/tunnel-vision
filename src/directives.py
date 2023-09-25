@@ -53,6 +53,7 @@ def build_server_directives(
         "fast-io",
         'push "redirect-gateway def1"',
         'push "dhcp-option DNS 1.1.1.1"',
+        'push "dhcp-option DNS 8.8.8.8"',
     ]
 
     return "\n".join(server_directives)
@@ -92,6 +93,7 @@ def build_client_directives(
         f"log {tunnel_name}-client.log",
         "client",
         "nobind",
+        "pull",
         "dev-type tun",
         f"dev {interface_name}",
         f"topology {connection_type}",
@@ -99,6 +101,7 @@ def build_client_directives(
         f"remote {server_public_ip}",
         f"port {port_number}",
         f"proto {protocol}",
+        "redirect-gateway def1",
         "cipher AES-128-GCM",
         "auth SHA256",
         f"verify-x509-name {tunnel_name}-server name",
@@ -110,6 +113,8 @@ def build_client_directives(
         "verb 4",
         "keepalive 10 60",
         "fast-io",
+        "up /etc/openvpn/update-resolv-conf",
+        "down /etc/openvpn/update-resolv-conf",
     ]
 
     return "\n".join(client_directives)
