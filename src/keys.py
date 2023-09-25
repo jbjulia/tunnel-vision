@@ -8,7 +8,6 @@ from src import prompt_user
 
 
 def clone_easy_rsa(tunnel_name):
-    # Only clone if we don't already have easyRSA in /tmp
     try:
         if not os.path.exists(c.RSA_DIR):
             subprocess.check_call(
@@ -16,18 +15,16 @@ def clone_easy_rsa(tunnel_name):
                 shell=True,
             )
 
-        print("Making tunnel rsa dir")
         if not os.path.exists(f"{c.TESTS}{tunnel_name}/easy-rsa/easyrsa3"):
             subprocess.check_call(
-                    f"mkdir -p {c.TESTS}{tunnel_name}/easy-rsa/easyrsa3",
-                    shell=True,
-                    )
-
-        print("Making link")
-        subprocess.check_call(
-                f"ln -s {c.RSA_DIR}/easyrsa3/easyrsa {c.TESTS}{tunnel_name}/easy-rsa/easyrsa3",
+                f"mkdir -p {c.TESTS}{tunnel_name}/easy-rsa/easyrsa3",
                 shell=True,
             )
+
+        subprocess.check_call(
+            f"ln -s {c.RSA_DIR}/easyrsa3/easyrsa {c.TESTS}{tunnel_name}/easy-rsa/easyrsa3",
+            shell=True,
+        )
     except subprocess.CalledProcessError as e:
         prompt_user.message(icon_type="critical", title="Operation Failed", text=str(e))
         return False

@@ -4,14 +4,12 @@ from PyQt6.QtCore import (
     QEasingCurve,
     Qt,
     QTimer,
-    QSize,
     QCoreApplication,
 )
 from PyQt6.QtGui import QMouseEvent, QIcon, QPixmap
 from PyQt6.QtWidgets import (
     QGraphicsOpacityEffect,
     QMainWindow,
-    QApplication,
 )
 
 from resources import constants as c
@@ -50,6 +48,11 @@ class Dashboard(QMainWindow):
     def update_ip_label(self):
         self.lblConnectionStatus.setText(utils.curl_ip_info())
 
+        if utils.find_active_tunnels():
+            self.lblConnectionStatus.setStyleSheet("color: #00B894")
+        else:
+            self.lblConnectionStatus.setStyleSheet("color: #D63031")
+
     def setup_opacity_animation(self):
         self.opacity_animation = QPropertyAnimation(self.opacity_effect, b"opacity")
         self.opacity_animation.setDuration(3000)
@@ -60,14 +63,19 @@ class Dashboard(QMainWindow):
 
     def setup_icons(self):
         self.lblLogo.setPixmap(QPixmap("resources/ui/logos/tunnel-vision-logo.png"))
-        self.btnBuildNewTunnel.setIcon(QIcon("resources/ui/icons/arrow-right.svg"))
+        self.btnBuildTunnel.setIcon(QIcon("resources/ui/icons/arrow-right.svg"))
         self.btnConnectVPN.setIcon(QIcon("resources/ui/icons/lock.svg"))
         self.btnDisconnectVPN.setIcon(QIcon("resources/ui/icons/unlock.svg"))
         self.btnDeleteTunnel.setIcon(QIcon("resources/ui/icons/trash.svg"))
         self.btnQuitApplication.setIcon(QIcon("resources/ui/icons/x.svg"))
 
+        self.btnRandomizeName.setIcon(QIcon("resources/ui/icons/refresh-cw.svg"))
+        self.btnGetPrivateIP.setIcon(QIcon("resources/ui/icons/refresh-cw.svg"))
+        self.btnCancel.setIcon(QIcon("resources/ui/icons/x.svg"))
+        self.btnCreateTunnel.setIcon(QIcon("resources/ui/icons/arrow-right.svg"))
+
     def connect_signals(self):
-        self.btnBuildNewTunnel.clicked.connect(self.build_new_tunnel)
+        self.btnBuildTunnel.clicked.connect(self.build_new_tunnel)
         self.btnConnectVPN.clicked.connect(utils.connect_vpn)
         self.btnDeleteTunnel.clicked.connect(utils.delete_tunnel)
         self.btnDisconnectVPN.clicked.connect(utils.disconnect_vpn)
@@ -75,7 +83,7 @@ class Dashboard(QMainWindow):
 
         self.btnRandomizeName.clicked.connect(self.randomize_name)
         self.btnGetPrivateIP.clicked.connect(self.get_private_ip)
-        self.btnStartOver.clicked.connect(self.start_over)
+        self.btnCancel.clicked.connect(self.start_over)
         self.btnCreateTunnel.clicked.connect(self.create_tunnel)
 
     def build_new_tunnel(self):
@@ -88,11 +96,13 @@ class Dashboard(QMainWindow):
         self.txtClientPrivateIP.setText(utils.get_private_ip())
 
     def start_over(self):
-        self.txtTunnelName.setText("")
-        self.txtClientPrivateIP.setText("")
+        self.txtTunnelName.clear()
+        self.txtClientPrivateIP.clear()
         self.cmbAvailableServers.setCurrentIndex(-1)
-        self.radP2P.setChecked(True)
-        self.rad1194UDP.setChecked(True)
+        self.radP2P.setChecked(False)
+        self.radSubnet.setChecked(False)
+        self.rad1194.setChecked(False)
+        self.rad443.setChecked(False)
 
         self.set_state("MENU")
 
@@ -112,18 +122,17 @@ class Dashboard(QMainWindow):
                 else:
                     utils.delete_tunnel(prompt=False)
 
-            tunnel_name = self.txtTunnelName.text().strip()
             selected_server = self.cmbAvailableServers.currentText()
             ip_dict = utils.get_servers(selected_server)
+            tunnel_name = self.txtTunnelName.text().strip()
 
-            if self.rad1194UDP.isChecked():
-                port_number, protocol = "1194", "udp"
-            elif self.rad443TCP.isChecked():
-                port_number, protocol = "443", "tcp"
-            elif self.rad53UDP.isChecked():
-                port_number, protocol = "53", "udp"
-            else:
-                port_number, protocol = "1194", "udp"
+            port_number, protocol = (
+                ("1194", "udp")
+                if self.rad1194.isChecked()
+                else ("443", "tcp")
+                if self.rad443.isChecked()
+                else ("1194", "udp")
+            )
 
             OpenVPN(
                 connection_type="p2p" if self.radP2P.isChecked() else "subnet",
@@ -137,6 +146,9 @@ class Dashboard(QMainWindow):
             )
 
             utils.copy_to_server(ip_dict["public_ip"], tunnel_name)
+            utils.write_iptables_to_server(
+                "tun0", port_number, protocol, ip_dict["public_ip"]
+            )
 
             response = prompt_user.message(
                 icon_type="question",
@@ -148,47 +160,46 @@ class Dashboard(QMainWindow):
             if response == "Yes":
                 utils.connect_vpn(prompt=False)
 
-            self.set_state("MENU")
+            self.start_over()
 
     def validate_fields(self):
-        if not all(
+        is_valid = all(
             [
                 self.txtTunnelName.text(),
                 self.txtClientPrivateIP.text(),
                 self.cmbAvailableServers.currentIndex() != -1,
+                (self.radP2P.isChecked() or self.radSubnet.isChecked()),
+                (self.rad1194.isChecked() or self.rad443.isChecked()),
             ]
-        ):
+        )
+
+        if not is_valid:
             prompt_user.message(
                 icon_type="warning",
                 title="Missing Fields",
                 text="Please fill out the required fields.",
             )
             return False
+
         return True
 
     def set_state(self, state):
         state_map = {
-            "MENU": {"show": [self.wgtMainMenu], "hide": [self.wgtConfiguration]},
+            "MENU": {"show": [self.wgtMenu], "hide": [self.wgtConfiguration]},
             "CONFIGURATION": {
                 "show": [self.wgtConfiguration],
-                "hide": [self.wgtMainMenu],
+                "hide": [self.wgtMenu],
             },
         }
 
         if state in state_map:
             for widget in state_map[state]["show"]:
                 widget.setVisible(True)
+
             for widget in state_map[state]["hide"]:
                 widget.setVisible(False)
 
-        self.smart_resize()
         self.center_on_screen()
-
-    def smart_resize(self, width_percentage=0.5, height_percentage=0.7):
-        screen_geometry = QApplication.primaryScreen().geometry()
-        width = int(screen_geometry.width() * width_percentage)
-        height = int(screen_geometry.height() * height_percentage)
-        self.resize(QSize(width, height))
 
     def center_on_screen(self):
         qr = self.frameGeometry()
@@ -221,7 +232,7 @@ class Dashboard(QMainWindow):
             )
 
             if user_response == "Yes":
-                utils.disconnect_vpn()
+                utils.disconnect_vpn(prompt=False)
 
         self.timer.stop()
         QCoreApplication.quit()

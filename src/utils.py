@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 from resources import constants as c
-from src import prompt_user
+from src import prompt_user, rules
 
 
 def check_os():
@@ -30,8 +30,6 @@ def check_dependencies():
         "curl",
         "git",
         "openvpn",
-        # "python3-pexpect",
-        # "python3-pyqt6",
         "sshpass",
     ]
 
@@ -98,19 +96,21 @@ def validate_port(port):
     while True:
         try:
             if 1024 <= port <= 49151:
-                return port
+                return True
             else:
                 prompt_user.message(
                     icon_type="warning",
                     title="Invalid Port",
                     text="Please enter a value in the unprivileged range (1024-49151).",
                 )
+                return False
         except ValueError:
             prompt_user.message(
                 icon_type="warning",
                 title="Invalid Port",
                 text="Please enter a numerical value",
             )
+            return False
 
 
 def get_private_ip():
@@ -192,6 +192,9 @@ def copy_to_server(server_public_ip, tunnel_name):
     }
 
     try:
+        safe_directory = os.path.expanduser("~")
+        os.chdir(safe_directory)
+
         for item, (local_path, destination) in local_paths.items():
             command = f"sshpass -p {c.PASS} scp {scp_flags} {ssh_flags} {'-r' if 'jail' in item else ''} {local_path} {tmp_path}"
             subprocess.check_call(command, shell=True)
@@ -211,6 +214,26 @@ def copy_to_server(server_public_ip, tunnel_name):
             icon_type="critical",
         )
 
+        return False
+
+
+def write_iptables_to_server(interface_name, port_number, protocol, server_ip):
+    ssh_flags = "-o StrictHostKeyChecking=no"
+
+    iptables_rules = rules.generate_iptables_rules(
+        protocol, port_number, interface_name
+    )
+
+    ssh_cmd = f"""sshpass -p {c.PASS} ssh {ssh_flags} root@{server_ip} "echo '{iptables_rules}' > /etc/iptables/rules.v4" """
+
+    try:
+        subprocess.run(ssh_cmd, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        prompt_user.message(
+            title="Error",
+            text=f"Error while writing iptables rules: {str(e)}",
+            icon_type="critical",
+        )
         return False
 
 
@@ -241,7 +264,6 @@ def connect_vpn(prompt=True):
     for tunnel_name, tunnel_info in tunnels.items():
         server_ip = tunnel_info["server_public_ip"]
 
-        # Check if tunnel is already connected
         check_tunnel_status_cmd = (
             f"sudo systemctl is-active --quiet openvpn@{tunnel_name}-client"
         )

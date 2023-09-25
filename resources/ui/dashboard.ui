@@ -6,27 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>780</width>
-    <height>592</height>
+    <width>824</width>
+    <height>847</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Guardians of the Gateway - Tunnel Vision</string>
+   <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">/* Global QWidget settings */
+   <string notr="true">/* Global QWidget Settings */
 QWidget {
     color: #DDD;
-    font: 12pt &quot;Ubuntu&quot;;
+    font: 11pt &quot;Ubuntu&quot;;
     background-color: #282C34;
-    border: 1px solid #3C4048;
     border-radius: 5px;
     padding: 7px;
-}
-
-/* Main Window */
-QMainWindow {
-    border: none;
 }
 
 /* ToolTips */
@@ -43,7 +37,7 @@ QPushButton {
     border: 2px solid #2C313A;
     background-color: transparent;
     padding: 14px 22px;
-    border-radius: 25px;
+    border-radius: 24px;
     outline: none;
 }
 
@@ -141,26 +135,31 @@ QComboBox QAbstractItemView {
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QWidget" name="wgtMainMenu" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item alignment="Qt::AlignHCenter">
-        <widget class="QLabel" name="lblConnectionStatus">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item alignment="Qt::AlignHCenter">
+     <widget class="QWidget" name="wgtMenu" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>600</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="0" alignment="Qt::AlignTop">
         <widget class="QLabel" name="lblLogo">
          <property name="text">
           <string/>
          </property>
-         <property name="scaledContents">
-          <bool>true</bool>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -173,402 +172,407 @@ QComboBox QAbstractItemView {
          </property>
         </spacer>
        </item>
-       <item alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="btnBuildNewTunnel">
+       <item row="3" column="0" alignment="Qt::AlignHCenter">
+        <widget class="QFrame" name="frmMenu">
          <property name="minimumSize">
           <size>
-           <width>350</width>
+           <width>400</width>
            <height>0</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>350</width>
-           <height>16777215</height>
-          </size>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-         <property name="text">
-          <string>Build a New Tunnel</string>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QPushButton" name="btnBuildTunnel">
+            <property name="text">
+             <string>  Build Tunnel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnConnectVPN">
+            <property name="text">
+             <string>  Connect VPN</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnDisconnectVPN">
+            <property name="text">
+             <string>  Disconnect VPN</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnDeleteTunnel">
+            <property name="text">
+             <string>  Delete Tunnel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnQuitApplication">
+            <property name="text">
+             <string>  Quit Application</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="btnConnectVPN">
-         <property name="minimumSize">
-          <size>
-           <width>350</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>350</width>
-           <height>16777215</height>
-          </size>
-         </property>
+       <item row="0" column="0" alignment="Qt::AlignTop">
+        <widget class="QLabel" name="lblConnectionStatus">
          <property name="text">
-          <string>Connect VPN</string>
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
-       </item>
-       <item alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="btnDisconnectVPN">
-         <property name="minimumSize">
-          <size>
-           <width>350</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>350</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Disconnect VPN</string>
-         </property>
-        </widget>
-       </item>
-       <item alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="btnDeleteTunnel">
-         <property name="minimumSize">
-          <size>
-           <width>350</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>350</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Delete Tunnel</string>
-         </property>
-        </widget>
-       </item>
-       <item alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="btnQuitApplication">
-         <property name="minimumSize">
-          <size>
-           <width>350</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>350</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Quit Application</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
     </item>
     <item>
      <widget class="QWidget" name="wgtConfiguration" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="lblTopology">
-         <property name="text">
-          <string>Topology</string>
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>600</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QFrame" name="frmAvailableServers">
+         <property name="maximumSize">
+          <size>
+           <width>550</width>
+           <height>16777215</height>
+          </size>
          </property>
-        </widget>
-       </item>
-       <item alignment="Qt::AlignTop">
-        <widget class="QFrame" name="frmTopology">
          <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item alignment="Qt::AlignHCenter">
-           <widget class="QRadioButton" name="radP2P">
-            <property name="toolTip">
-             <string>Best for direct connections between two systems. Low-latency
-                                                        but less flexible.
-                                                    </string>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="lblAvailableServers">
+            <property name="font">
+             <font>
+              <family>Ubuntu</family>
+              <pointsize>11</pointsize>
+              <italic>false</italic>
+              <bold>true</bold>
+              <underline>true</underline>
+             </font>
             </property>
             <property name="text">
-             <string>Point-to-Point (P2P)</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
+             <string>Available Servers:</string>
             </property>
            </widget>
           </item>
-          <item alignment="Qt::AlignHCenter">
-           <widget class="QRadioButton" name="radSubnet">
-            <property name="toolTip">
-             <string>Ideal for multiple connections through a single server. More
-                                                        flexible but higher latency.
-                                                    </string>
+          <item>
+           <widget class="QComboBox" name="cmbAvailableServers">
+            <property name="currentIndex">
+             <number>-1</number>
             </property>
-            <property name="text">
-             <string>Subnet</string>
-            </property>
+            <item>
+             <property name="text">
+              <string>Bangalore (blr1)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Frankfurt (fra1)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>London (lon1)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>New York (nyc1)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>San Francisco (sfo3)</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item>
-        <widget class="QLabel" name="lblTunnelName">
-         <property name="text">
-          <string>Tunnel Name</string>
-         </property>
-        </widget>
-       </item>
-       <item>
+       <item row="1" column="0">
         <widget class="QFrame" name="frmTunnelName">
+         <property name="maximumSize">
+          <size>
+           <width>550</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QLineEdit" name="txtTunnelName"/>
+           <widget class="QLabel" name="lblTunnelName">
+            <property name="font">
+             <font>
+              <family>Ubuntu</family>
+              <pointsize>11</pointsize>
+              <italic>false</italic>
+              <bold>true</bold>
+              <underline>true</underline>
+             </font>
+            </property>
+            <property name="text">
+             <string>Tunnel Name:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txtTunnelName">
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="btnRandomizeName">
             <property name="text">
-             <string>Randomize Name</string>
+             <string>  Randomize Name</string>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item>
-        <widget class="QLabel" name="lblAvailableServers">
-         <property name="text">
-          <string>Available Servers</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="cmbAvailableServers">
-         <property name="currentIndex">
-          <number>-1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Bangalore (blr1)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Frankfurt (fra1)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>London (lon1)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>New York (nyc1)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>San Francisco (sfo3)</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblClientPrivateIP">
-         <property name="text">
-          <string>Client's Private IP Address</string>
-         </property>
-        </widget>
-       </item>
-       <item>
+       <item row="2" column="0">
         <widget class="QFrame" name="frmClientPrivateIP">
+         <property name="maximumSize">
+          <size>
+           <width>550</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <widget class="QLineEdit" name="txtClientPrivateIP"/>
+           <widget class="QLabel" name="lblClientPrivateIP">
+            <property name="font">
+             <font>
+              <family>Ubuntu</family>
+              <pointsize>11</pointsize>
+              <italic>false</italic>
+              <bold>true</bold>
+              <underline>true</underline>
+             </font>
+            </property>
+            <property name="text">
+             <string>Client's IP Address (Private):</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txtClientPrivateIP">
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="btnGetPrivateIP">
             <property name="text">
-             <string>Get My Private IP</string>
+             <string>  Get Private IP</string>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item>
-        <widget class="QLabel" name="lblPortNumber">
-         <property name="text">
-          <string>Port Number</string>
+       <item row="3" column="0">
+        <widget class="QFrame" name="frmNetworkTopology">
+         <property name="maximumSize">
+          <size>
+           <width>550</width>
+           <height>16777215</height>
+          </size>
          </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QLabel" name="lblNetworkTopology">
+            <property name="font">
+             <font>
+              <family>Ubuntu</family>
+              <pointsize>11</pointsize>
+              <italic>false</italic>
+              <bold>true</bold>
+              <underline>true</underline>
+             </font>
+            </property>
+            <property name="text">
+             <string>Network Topology:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frmTopology">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QRadioButton" name="radP2P">
+               <property name="toolTip">
+                <string>Ideal for creating a direct link between two network nodes. Typically faster but lacks some advanced features.</string>
+               </property>
+               <property name="text">
+                <string>Point-to-Point (P2P)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radSubnet">
+               <property name="toolTip">
+                <string>Suitable for connecting multiple devices in a network segment. Offers more control and advanced routing options.</string>
+               </property>
+               <property name="text">
+                <string>Subnet</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item>
+       <item row="4" column="0">
         <widget class="QFrame" name="frmPortNumber">
+         <property name="maximumSize">
+          <size>
+           <width>550</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QLabel" name="lblPortNumber">
+            <property name="font">
+             <font>
+              <family>Ubuntu</family>
+              <pointsize>11</pointsize>
+              <italic>false</italic>
+              <bold>true</bold>
+              <underline>true</underline>
+             </font>
+            </property>
+            <property name="text">
+             <string>Port Number:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frmPort">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QRadioButton" name="rad1194">
+               <property name="toolTip">
+                <string>Standard port for OpenVPN over UDP. Known for fast data transmission but less reliable compared to TCP.</string>
+               </property>
+               <property name="text">
+                <string>1194 (UDP - Default)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="rad443">
+               <property name="toolTip">
+                <string>Commonly used for secure web traffic (HTTPS). More reliable but can be slower than UDP. Easier to bypass firewalls.</string>
+               </property>
+               <property name="text">
+                <string>443 (TCP)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QFrame" name="frmActions">
+         <property name="maximumSize">
+          <size>
+           <width>550</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item alignment="Qt::AlignHCenter">
-           <widget class="QRadioButton" name="rad1194UDP">
-            <property name="toolTip">
-             <string>Official IANA port for OpenVPN. UDP is faster and uses fewer
-                                                        resources than TCP.
-                                                    </string>
-            </property>
-            <property name="text">
-             <string>1194 (UDP)</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignHCenter">
-           <widget class="QRadioButton" name="rad443TCP">
-            <property name="toolTip">
-             <string>Standard HTTPS port. Using TCP 443 masks VPN traffic as web
-                                                        traffic, useful for bypassing VPN blocks.
-                                                    </string>
-            </property>
-            <property name="text">
-             <string>443 (TCP)</string>
-            </property>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignHCenter">
-           <widget class="QRadioButton" name="rad53UDP">
-            <property name="toolTip">
-             <string>Standard DNS port. Using UDP 53 mimics DNS traffic, aiding
-                                                        in bypassing restrictions but risks flagging in monitored
-                                                        networks.
-                                                    </string>
-            </property>
-            <property name="text">
-             <string>53 (UDP)</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QFrame" name="frmActions">
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
-           <widget class="QPushButton" name="btnStartOver">
+           <widget class="QPushButton" name="btnCancel">
             <property name="text">
-             <string>Cancel</string>
+             <string>  Cancel</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="btnCreateTunnel">
             <property name="text">
-             <string>Create Tunnel</string>
+             <string>  Create Tunnel</string>
             </property>
            </widget>
           </item>
