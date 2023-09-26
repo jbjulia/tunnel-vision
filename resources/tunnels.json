@@ -1,11 +1,1 @@
-{
-    "jbjulia_SLcy3TqG": {
-        "client_private_ip": "192.168.4.165",
-        "connection_type": "p2p",
-        "interface_name": "tun0",
-        "port_number": "1194",
-        "protocol": "udp",
-        "server_private_ip": "10.122.0.2",
-        "server_public_ip": "68.183.82.166"
-    }
-}
+{}
