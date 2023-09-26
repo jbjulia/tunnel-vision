@@ -9,9 +9,9 @@ from src import prompt_user
 
 def clone_easy_rsa(tunnel_name):
     try:
-        if not os.path.exists(c.RSA_DIR):
+        if not os.path.exists(c.EASY_RSA):
             subprocess.check_call(
-                f"git clone https://github.com/OpenVPN/easy-rsa.git {c.RSA_DIR}",
+                f"git clone https://github.com/OpenVPN/easy-rsa.git {c.EASY_RSA}",
                 shell=True,
             )
 
@@ -22,7 +22,7 @@ def clone_easy_rsa(tunnel_name):
             )
 
         subprocess.check_call(
-            f"ln -s {c.RSA_DIR}/easyrsa3/easyrsa {c.TESTS}{tunnel_name}/easy-rsa/easyrsa3",
+            f"ln -s {c.EASY_RSA}/easyrsa3/easyrsa {c.TESTS}{tunnel_name}/easy-rsa/easyrsa3",
             shell=True,
         )
     except subprocess.CalledProcessError as e:

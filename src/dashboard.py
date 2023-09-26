@@ -10,11 +10,12 @@ from PyQt6.QtGui import QMouseEvent, QIcon, QPixmap
 from PyQt6.QtWidgets import (
     QGraphicsOpacityEffect,
     QMainWindow,
+    QProgressBar,
 )
 
-from resources import constants as c
 from src import prompt_user, utils
-from src.ovpn import OpenVPN
+from src.update_ip import UpdateIP
+from src.create_tunnel import CreateTunnel
 
 
 class Dashboard(QMainWindow):
@@ -22,6 +23,9 @@ class Dashboard(QMainWindow):
         super(Dashboard, self).__init__()
         uic.loadUi(ui, self)
 
+        self.ip_update_thread = None
+        self.circular_loading_bar = None
+        self.tunnel_creation_thread = None
         self.opacity_animation = None
         self.opacity_effect = None
         self.timer = None
@@ -40,15 +44,46 @@ class Dashboard(QMainWindow):
         self.setup_opacity_animation()
         self.setup_icons()
 
+        self.circular_loading_bar = QProgressBar(self)
+        self.circular_loading_bar.setStyleSheet(
+            """
+            QProgressBar {
+                border: none;
+                border-radius: 24%;
+                background-color: transparent;
+            }
+            QProgressBar::chunk {
+                background-color: #8F48D5;
+                border-radius: 17%;
+            }
+        """
+        )
+        self.circular_loading_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.circular_loading_bar.setRange(0, 100)  # Set the range
+        self.circular_loading_bar.setMinimum(0)
+        self.circular_loading_bar.setMaximum(0)
+        self.circular_loading_bar.hide()
+
+    def resizeEvent(self, event):
+        bar_width = 90
+        bar_height = 55
+        x = (self.width() - bar_width) // 2
+        y = (self.height() - bar_height) // 2
+        self.circular_loading_bar.setGeometry(x, y, bar_width, bar_height)
+
     def start_timer(self):
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_ip_label)
-        self.timer.start(5000)  # 1000 milliseconds = 1 second
+        self.timer.timeout.connect(self.initiate_ip_update)
+        self.timer.start(5000)
 
-    def update_ip_label(self):
-        self.lblConnectionStatus.setText(utils.curl_ip_info())
+    def initiate_ip_update(self):
+        self.ip_update_thread = UpdateIP()
+        self.ip_update_thread.signal.connect(self.update_ip_label)
+        self.ip_update_thread.start()
 
-        if utils.find_active_tunnels():
+    def update_ip_label(self, ip_info, active_tunnels):
+        self.lblConnectionStatus.setText(ip_info)
+        if active_tunnels:
             self.lblConnectionStatus.setStyleSheet("color: #00B894")
         else:
             self.lblConnectionStatus.setStyleSheet("color: #D63031")
@@ -108,23 +143,10 @@ class Dashboard(QMainWindow):
 
     def create_tunnel(self):
         if self.validate_fields():
-            existing_tunnels = utils.load_json(c.TUNNELS)
-            if existing_tunnels:
-                response = prompt_user.message(
-                    icon_type="question",
-                    title="Tunnel Already Exist",
-                    text="A tunnel already exists. Would you like to delete it and create a new one?",
-                    buttons=["Yes", "No"],
-                )
-                if response == "No":
-                    self.set_state("MENU")
-                    return
-                else:
-                    utils.delete_tunnel(prompt=False)
-
             selected_server = self.cmbAvailableServers.currentText()
             ip_dict = utils.get_servers(selected_server)
-            tunnel_name = self.txtTunnelName.text().strip()
+
+            self.circular_loading_bar.show()
 
             port_number, protocol = (
                 ("1194", "udp")
@@ -134,48 +156,25 @@ class Dashboard(QMainWindow):
                 else ("1194", "udp")
             )
 
-            tmp = OpenVPN(
-                connection_type="p2p" if self.radP2P.isChecked() else "subnet",
-                tunnel_name=tunnel_name,
-                server_public_ip=ip_dict["public_ip"],
-                server_private_ip=ip_dict["private_ip"],
-                client_private_ip=self.txtClientPrivateIP.text().strip(),
-                interface_name="tun0",
-                port_number=port_number,
-                protocol=protocol,
-            )
+            args = {
+                "connection_type": "p2p" if self.radP2P.isChecked() else "subnet",
+                "tunnel_name": self.txtTunnelName.text().strip(),
+                "server_public_ip": ip_dict["public_ip"],
+                "server_private_ip": ip_dict["private_ip"],
+                "client_private_ip": self.txtClientPrivateIP.text().strip(),
+                "interface_name": "tun0",
+                "port_number": port_number,
+                "protocol": protocol,
+            }
 
-            if not tmp.successful_init:
-                prompt_user.message(icon_type="critical", title="Error!", text="The Tunnel failed to setup correctly!")
-                utils.cleanup_failure(tunnel_name)
-                self.start_over()
-                return
+            self.tunnel_creation_thread = CreateTunnel(args)
+            self.tunnel_creation_thread.signal.connect(self.handle_tunnel_creation)
+            self.tunnel_creation_thread.start()
+            self.set_button_states(False)
 
-            
-
-            if not utils.copy_to_server(ip_dict["public_ip"], tunnel_name):
-                utils.cleanup_failure(tunnel_name)
-                self.start_over()
-                return
-            if not utils.write_iptables_to_server(
-                "tun0", port_number, protocol, ip_dict["public_ip"]
-                ):
-                utils.cleanup_failure(tunnel_name)
-                self.start_over()
-                return
-
-            response = prompt_user.message(
-                icon_type="question",
-                title="Success",
-                text="Your tunnel has been successfully created.\n\nWould you like to attempt to connect?",
-                buttons=["Yes", "No"],
-            )
-
-            if response == "Yes":
-                utils.connect_vpn(prompt=False)
-
-            self.start_over()
-
+    def handle_tunnel_creation(self, message):
+        self.set_button_states(True)
+        self.circular_loading_bar.hide()
 
     def validate_fields(self):
         is_valid = all(
@@ -197,6 +196,17 @@ class Dashboard(QMainWindow):
             return False
 
         return True
+
+    def set_button_states(self, state: bool):
+        self.btnBuildTunnel.setEnabled(state)
+        self.btnConnectVPN.setEnabled(state)
+        self.btnDeleteTunnel.setEnabled(state)
+        self.btnDisconnectVPN.setEnabled(state)
+        self.btnQuitApplication.setEnabled(state)
+        self.btnRandomizeName.setEnabled(state)
+        self.btnGetPrivateIP.setEnabled(state)
+        self.btnCancel.setEnabled(state)
+        self.btnCreateTunnel.setEnabled(state)
 
     def set_state(self, state):
         state_map = {

@@ -331,7 +331,7 @@ def disconnect_vpn(prompt=True):
         confirmed = prompt_user.message(
             icon_type="question",
             title="Confirm Disconnection",
-            text="Are you sure you want to disconnect?",
+            text="Are you sure you want to disconnect?\n\nYour IP address will be exposed.",
             buttons=["Yes", "No"],
         )
 
@@ -379,7 +379,7 @@ def delete_tunnel(prompt=True):
         confirmed = prompt_user.message(
             icon_type="question",
             title="Confirm Deletion",
-            text="Are you sure you want to delete all tunnels?",
+            text="Are you sure you want to delete the tunnel?",
             buttons=["Yes", "No"],
         )
 
@@ -425,10 +425,9 @@ def delete_tunnel(prompt=True):
 
     dump_json(tunnels, c.TUNNELS)
 
+
 def cleanup_failure(tunnel_name):
-
     try:
-
         local_client_conf_path = f"/etc/openvpn/{tunnel_name}*"
         remove_client_conf_cmd = f"sudo rm -f {local_client_conf_path}"
         subprocess.run(remove_client_conf_cmd, shell=True, check=True)

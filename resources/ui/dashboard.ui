@@ -129,8 +129,7 @@ QComboBox QAbstractItemView {
     background-color: #21252B;
     padding: 10px;
     selection-background-color: #8F48D5;
-}
-</string>
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
