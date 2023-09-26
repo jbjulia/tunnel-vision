@@ -134,7 +134,7 @@ class Dashboard(QMainWindow):
                 else ("1194", "udp")
             )
 
-            OpenVPN(
+            tmp = OpenVPN(
                 connection_type="p2p" if self.radP2P.isChecked() else "subnet",
                 tunnel_name=tunnel_name,
                 server_public_ip=ip_dict["public_ip"],
@@ -145,10 +145,24 @@ class Dashboard(QMainWindow):
                 protocol=protocol,
             )
 
-            utils.copy_to_server(ip_dict["public_ip"], tunnel_name)
-            utils.write_iptables_to_server(
+            if not tmp.successful_init:
+                prompt_user.message(icon_type="critical", title="Error!", text="The Tunnel failed to setup correctly!")
+                utils.cleanup_failure(tunnel_name)
+                self.start_over()
+                return
+
+            
+
+            if not utils.copy_to_server(ip_dict["public_ip"], tunnel_name):
+                utils.cleanup_failure(tunnel_name)
+                self.start_over()
+                return
+            if not utils.write_iptables_to_server(
                 "tun0", port_number, protocol, ip_dict["public_ip"]
-            )
+                ):
+                utils.cleanup_failure(tunnel_name)
+                self.start_over()
+                return
 
             response = prompt_user.message(
                 icon_type="question",
@@ -161,6 +175,7 @@ class Dashboard(QMainWindow):
                 utils.connect_vpn(prompt=False)
 
             self.start_over()
+
 
     def validate_fields(self):
         is_valid = all(
