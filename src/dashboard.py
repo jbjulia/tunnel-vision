@@ -175,6 +175,7 @@ class Dashboard(QMainWindow):
     def handle_tunnel_creation(self, message):
         self.set_button_states(True)
         self.circular_loading_bar.hide()
+        self.set_state("MENU")
 
     def validate_fields(self):
         is_valid = all(
