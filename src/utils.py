@@ -235,6 +235,7 @@ def write_iptables_to_server(interface_name, port_number, protocol, server_ip):
             icon_type="critical",
         )
         return False
+    return True
 
 
 def connect_vpn(prompt=True):
@@ -422,4 +423,27 @@ def delete_tunnel(prompt=True):
     for tunnel_name in tunnel_names_to_delete:
         del tunnels[tunnel_name]
 
+    dump_json(tunnels, c.TUNNELS)
+
+def cleanup_failure(tunnel_name):
+
+    try:
+
+        local_client_conf_path = f"/etc/openvpn/{tunnel_name}*"
+        remove_client_conf_cmd = f"sudo rm -f {local_client_conf_path}"
+        subprocess.run(remove_client_conf_cmd, shell=True, check=True)
+
+        tunnel_folder_path = os.path.join(c.TESTS, tunnel_name)
+        shutil.rmtree(tunnel_folder_path)
+
+    except Exception as e:
+        prompt_user.message(
+            icon_type="critical",
+            title="Error",
+            text=f"Failed to cleanup a failed tunnel creation: {e}",
+        )
+
+    tunnels = load_json(c.TUNNELS)
+
+    del tunnels[tunnel_name]
     dump_json(tunnels, c.TUNNELS)

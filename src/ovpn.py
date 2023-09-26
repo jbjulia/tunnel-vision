@@ -27,6 +27,7 @@ class OpenVPN:
         self.interface_name = interface_name
         self.port_number = port_number
         self.protocol = protocol
+        self.successful_init = False
 
         if not self.generate_certificates():
             return
@@ -42,6 +43,8 @@ class OpenVPN:
             return
         if not self.save_tunnel_config():
             return
+
+        self.successful_init = True
 
     def generate_certificates(self):
         try:
