@@ -4,12 +4,11 @@
 
 ## Overview
 
-Tunnel Vision enables the configuration, setup, and management of OpenVPN
-tunnels.
+Tunnel Vision is an innovative OpenVPN client management application designed to make VPN tunnel creation and management accessible to users of all technical backgrounds. With its intuitive and user-friendly graphical interface, Tunnel Vision eliminates the complexity typically associated with VPN setup.
 
-Tunnel Vision provides a streamlined interface to the [easy-rsa CA
-utility](https://github.com/OpenVPN/easy-rsa), certificate generation, OpenVPN server
-and client configuration, for secure communication.
+Users can easily configure VPN connections, choose server locations, and customize tunnel parameters such as tunnel name, private IP addresses, and connection protocols. This software automates the generation of SSL certificates and keys required for secure VPN connections by using the [easy-rsa CA utility](https://github.com/OpenVPN/easy-rsa), ensuring users can establish their VPN tunnels quickly and securely.
+
+The application also provides real-time updates on the user's public IP address, making it easy to monitor the status of the VPN connection. Whether for personal privacy, remote access, or bypassing geo-restrictions, Tunnel Vision empowers individuals and businesses to take control of their online security and access needs. Its user-friendly features, robust error handling, and visual feedback mechanisms make it an invaluable tool in the realm of VPN management, simplifying the process of securing online activities.
 
 Tunnel Vision is built and run on a Linux-based system and requires superuser
 privileges.
@@ -26,41 +25,56 @@ Started](./docs/get-started.md) page.
 
 ## Installation
 
-Tunnel Vision is a python project built on Linux follow these steps to set up
+Tunnel Vision is a Python project built on Linux follow these steps to set up
 the project on your machine:
 
-1. **Install project requirements** including `Python 3`, `OpenVPN`, and `Git`
-   make sure they are installed on your Linux machine.
-2. **Fork** the repository using the secure shell (SSH) link:
-   `git@github.com:jbjulia/tunnel-vision.git`
-3. From your fork, **clone the repository** to your local machine.
-4. In your terminal, **select the directory** you saved the project in.
-5. Make the `tv.py` script executable by running the following command `chmod
-   +x tv.py`.
-6. Execute the script with **superuser** privileges using `sudo ./tv.py`.
+1. Create a **Fork** of the `tunnel-vision` repository.
+2. Navigate to your personal fork and **clone** the repository the repository using the secure shell (SSH) link:
+
+```
+git@github.com:<username>/tunnel-vision.git
+```
+
+4. Open terminal.
+5. Navigate to the `tunnel-vision` directory.
+6. Install the project requirements using the following commands:
+
+```
+sudo pip3 install -r requirements.txt
+sudo apt install sshpass
+```
+
+_This should install the project dependencies._
+
+7. Once the project requirements are met run the Tunnel Vision application using superuser privileges:
+
+```
+sudo python3 ./tv.py
+```
+
+_At this point, the application should open._
 
 ## Configure a tunnel
 
 1. Launch the application.
 2. Run the script `tv.py`.
-3. Select **Create Tunnel**.
+3. Click **Build Tunnel**.
 4. Enter **Tunnel Information** such as a name and Internet Protocol (IP)
    address for the tunnel.
-5. Review the configuration and confirm the settings to proceed.
+5. Review the configuration and click `Create Tunnel` to proceed.
 
 ### Manage existing tunnels
 
-1. Launch the Application.
-2. Run the `tv.py` script.
-3. Select **Manage Tunnels**.
-4. **Modify or Delete Tunnels**.
+1. Launch the application.
+2. Run the script `tv.py`.
+3. Click **Delete Tunnel**.
+4. If any preexisting tunnels, choose from the drop-down menu, the tunnel you would like to delete.
 
 ### Connect to a server
 
-1. Select **Connect to Server**.
-2. From the list of servers in the `servers.json`, **choose a server you want
-   use**.
-3. **Enter Credentials** to establish connection.
+1. Select **Connect VPN**.
+2. From the drop-down menu, **choose a server you want use**.
+3. The IP should update to the chosen server in the main menu.
 
 Read more detailed setup and configuration information on the [Tunnel
 configuration](./docs/tunnel-config.md) page.
@@ -75,4 +89,4 @@ module `README` file.
 
 ## License
 
-Tunnel Vision is open source software licensed under the [MIT License](LICENSE).
+Tunnel Vision is open-source software licensed under the [MIT License](LICENSE).
