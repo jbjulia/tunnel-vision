@@ -45,19 +45,18 @@ class Dashboard(QMainWindow):
         self.setup_icons()
 
         self.circular_loading_bar = QProgressBar(self)
-        self.circular_loading_bar.setStyleSheet(
-            """
+        self.circular_loading_bar.setStyleSheet("""
+        
             QProgressBar {
-                border: none;
-                border-radius: 24%;
+                border: none,
+                border-radius: 24%,
                 background-color: transparent;
             }
             QProgressBar::chunk {
-                background-color: #8F48D5;
+                background-color: #8F48D5,
                 border-radius: 17%;
             }
-        """
-        )
+        """)
         self.circular_loading_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.circular_loading_bar.setRange(0, 100)  # Set the range
         self.circular_loading_bar.setMinimum(0)
