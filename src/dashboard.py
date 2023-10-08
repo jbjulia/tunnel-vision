@@ -45,7 +45,8 @@ class Dashboard(QMainWindow):
         self.setup_icons()
 
         self.circular_loading_bar = QProgressBar(self)
-        self.circular_loading_bar.setStyleSheet("""
+        self.circular_loading_bar.setStyleSheet(
+            """
         
             QProgressBar {
                 border: none,
@@ -56,9 +57,10 @@ class Dashboard(QMainWindow):
                 background-color: #8F48D5,
                 border-radius: 17%;
             }
-        """)
+        """
+        )
         self.circular_loading_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.circular_loading_bar.setRange(0, 100)  # Set the range
+        self.circular_loading_bar.setRange(0, 100)
         self.circular_loading_bar.setMinimum(0)
         self.circular_loading_bar.setMaximum(0)
         self.circular_loading_bar.hide()
@@ -171,7 +173,7 @@ class Dashboard(QMainWindow):
             self.tunnel_creation_thread.start()
             self.set_button_states(False)
 
-    def handle_tunnel_creation(self, message):
+    def handle_tunnel_creation(self):
         self.set_button_states(True)
         self.circular_loading_bar.hide()
         self.set_state("MENU")

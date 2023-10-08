@@ -13,6 +13,7 @@ class CreateTunnel(QThread):
     def run(self):
         try:
             tunnel = self.init_tunnel()
+
             if not tunnel.successful_init:
                 self.handle_init_failure()
                 return
@@ -20,8 +21,6 @@ class CreateTunnel(QThread):
             if not self.setup_server():
                 self.handle_setup_failure()
                 return
-
-            self.signal.emit("Success")
 
             response = prompt_user.message(
                 icon_type="question",
@@ -32,6 +31,8 @@ class CreateTunnel(QThread):
 
             if response == "Yes":
                 utils.connect_vpn(prompt=False)
+
+            self.signal.emit("Success")
 
         except Exception as e:
             self.signal.emit(f"Failure: {str(e)}")
